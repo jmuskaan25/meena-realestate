@@ -3,24 +3,24 @@
    ============================================ */
 
 :root {
-  --primary: #4a90d9;
-  --primary-dark: #3a7bc8;
-  --primary-light: #f0f6fd;
-  --green: #34a76c;
-  --green-light: #edf8f2;
-  --red: #d94f4f;
-  --orange: #e8802a;
-  --text-dark: #2c3e50;
-  --text: #3a4a5c;
-  --text-muted: #8899aa;
-  --text-light: #b0bac5;
-  --border: #e8ecf1;
-  --bg: #fafbfc;
-  --bg-gray: #f3f5f7;
+  --primary: #3b8bf5;
+  --primary-dark: #2b7ae6;
+  --primary-light: #eef5ff;
+  --green: #22c55e;
+  --green-light: #ecfdf5;
+  --red: #f87171;
+  --orange: #fb923c;
+  --text-dark: #1e293b;
+  --text: #334155;
+  --text-muted: #94a3b8;
+  --text-light: #cbd5e1;
+  --border: #e2e8f0;
+  --bg: #ffffff;
+  --bg-gray: #f8fafc;
   --white: #ffffff;
-  --shadow: 0 1px 6px rgba(0,0,0,0.05);
-  --shadow-md: 0 3px 12px rgba(0,0,0,0.07);
-  --shadow-lg: 0 6px 24px rgba(0,0,0,0.09);
+  --shadow: 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-md: 0 2px 10px rgba(0,0,0,0.06);
+  --shadow-lg: 0 4px 20px rgba(0,0,0,0.08);
   --radius: 12px;
   --radius-sm: 8px;
   --radius-pill: 50px;
@@ -457,7 +457,7 @@ img { max-width: 100%; display: block; }
    Hero Section
    ============================================ */
 .hero {
-  background: linear-gradient(135deg, #1e3a5f 0%, #3a7bc8 60%, #5a9fe0 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #60a5fa 100%);
   padding: 48px 16px 64px;
   text-align: center;
   position: relative;
