@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Listings - Meena Real Estate Agency</title>
-  <link rel="stylesheet" href="styles.css?v=1">
+  <title>My Listings - Meena Real Estate</title>
+  <link rel="stylesheet" href="styles.css?v=2">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
 </head>
 <body>
 
   <!-- Sign-In Wall -->
-  <div id="signInWall" class="signin-wall" style="display:flex; position:fixed; inset:0; z-index:9999; background:#f9fafb; align-items:center; justify-content:center;">
+  <div id="signInWall" class="signin-wall" style="display:flex; position:fixed; inset:0; z-index:9999; background:var(--bg-gray, #f5f5f5); align-items:center; justify-content:center;">
     <div class="signin-card">
       <span class="signin-logo">🏠</span>
       <h1>Meena Real Estate</h1>
@@ -22,14 +22,13 @@
     </div>
   </div>
 
-  <!-- Navigation -->
+  <!-- Top Navigation -->
   <header class="header">
     <div class="header-content">
       <a href="index.html" class="header-brand">
         <span class="header-logo">🏠</span>
         <div>
           <div class="header-title">Meena Real Estate</div>
-          <div class="header-subtitle">Find your dream property</div>
         </div>
       </a>
       <nav class="header-nav">
@@ -39,6 +38,7 @@
         <a href="admin.html" class="nav-link" id="adminLink" style="display:none;">Admin</a>
       </nav>
       <div class="header-actions">
+        <a href="post.html" class="btn-post-property">Post Property FREE</a>
         <div id="signedInView" style="display:none;" class="profile-menu-wrapper">
           <img id="userAvatar" src="" alt="" class="profile-avatar">
           <div id="profileDropdown" class="profile-dropdown" style="display:none;">
@@ -93,10 +93,30 @@
     </div>
   </footer>
 
+  <!-- Bottom Nav (Mobile) -->
+  <nav class="bottom-nav">
+    <a href="index.html" class="bottom-nav-item">
+      <span class="bottom-nav-icon">🏠</span>
+      Home
+    </a>
+    <a href="post.html" class="bottom-nav-item">
+      <span class="bottom-nav-icon">➕</span>
+      Post
+    </a>
+    <a href="my-listings.html" class="bottom-nav-item active">
+      <span class="bottom-nav-icon">📋</span>
+      My Listings
+    </a>
+    <a href="#" class="bottom-nav-item">
+      <span class="bottom-nav-icon">👤</span>
+      Profile
+    </a>
+  </nav>
+
   <div class="toast-container" id="toastContainer"></div>
 
   <script src="config.js?v=2"></script>
-  <script type="module" src="my-listings.js?v=1"></script>
+  <script type="module" src="my-listings.js?v=2"></script>
 
 </body>
 </html>

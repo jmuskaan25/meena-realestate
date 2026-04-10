@@ -3,20 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Meena Real Estate Agency</title>
-  <link rel="stylesheet" href="styles.css?v=1">
+  <title>Meena Real Estate - Find Your Dream Property</title>
+  <link rel="stylesheet" href="styles.css?v=2">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
 </head>
 <body>
 
-  <!-- Navigation -->
+  <!-- Top Navigation -->
   <header class="header">
     <div class="header-content">
       <a href="index.html" class="header-brand">
         <span class="header-logo">🏠</span>
         <div>
           <div class="header-title">Meena Real Estate</div>
-          <div class="header-subtitle">Find your dream property</div>
         </div>
       </a>
       <nav class="header-nav">
@@ -26,6 +25,7 @@
         <a href="admin.html" class="nav-link" id="adminLink" style="display:none;">Admin</a>
       </nav>
       <div class="header-actions">
+        <a href="post.html" class="btn-post-property">Post Property FREE</a>
         <div id="signedInView" style="display:none;" class="profile-menu-wrapper">
           <img id="userAvatar" src="" alt="" class="profile-avatar">
           <div id="profileDropdown" class="profile-dropdown" style="display:none;">
@@ -50,7 +50,7 @@
     </div>
   </header>
 
-  <!-- Mobile Nav -->
+  <!-- Mobile Nav Dropdown -->
   <div class="mobile-nav" id="mobileNav" style="display:none;">
     <a href="index.html" class="nav-link active">Home</a>
     <a href="post.html" class="nav-link">Post Property</a>
@@ -58,66 +58,114 @@
     <a href="admin.html" class="nav-link" id="adminLinkMobile" style="display:none;">Admin</a>
   </div>
 
+  <!-- Category Scroll Bar -->
+  <div class="category-scroll">
+    <div class="category-item active" data-filter-type="" data-filter-listing="">
+      <span class="category-icon">🏠</span>
+      <span class="category-label">All</span>
+    </div>
+    <div class="category-item" data-filter-type="" data-filter-listing="Sale">
+      <span class="category-icon">🔑</span>
+      <span class="category-label">Buy</span>
+    </div>
+    <div class="category-item" data-filter-type="" data-filter-listing="Rent">
+      <span class="category-icon">🏡</span>
+      <span class="category-label">Rent</span>
+    </div>
+    <div class="category-item" data-filter-type="Plot" data-filter-listing="">
+      <span class="category-icon">📊</span>
+      <span class="category-label">Plot</span>
+    </div>
+    <div class="category-item" data-filter-type="Commercial" data-filter-listing="">
+      <span class="category-icon">🏢</span>
+      <span class="category-label">Commercial</span>
+    </div>
+    <div class="category-item" data-filter-type="PG/Hostel" data-filter-listing="">
+      <span class="category-icon">🛏️</span>
+      <span class="category-label">PG/Hostel</span>
+    </div>
+    <a class="category-item" href="post.html">
+      <span class="category-icon">➕</span>
+      <span class="category-label">Post</span>
+    </a>
+  </div>
+
   <!-- Hero Section -->
   <section class="hero">
     <div class="hero-inner">
-      <h1>Find Your Dream Property</h1>
+      <h1>Find Your Dream Property with Meena Real Estate</h1>
       <p>Browse apartments, houses, plots and commercial spaces across India</p>
+
+      <!-- Search Pill -->
+      <div class="search-pill-wrapper">
+        <div class="search-pill">
+          <span class="search-pill-icon">🔍</span>
+          <input type="text" id="filterCity" placeholder="Enter City, Locality, Project...">
+          <button class="search-pill-btn" id="searchBtn">Search</button>
+        </div>
+      </div>
+
+      <!-- Filter Pills -->
+      <div class="filter-pills">
+        <button class="filter-pill" data-bedroom="1">1 BHK</button>
+        <button class="filter-pill" data-bedroom="2">2 BHK</button>
+        <button class="filter-pill" data-bedroom="3">3 BHK</button>
+        <button class="filter-pill" data-type="House/Villa">Villa</button>
+        <button class="filter-pill" data-maxprice="5000000">Under 50L</button>
+        <button class="filter-pill" data-minprice="5000000" data-maxprice="10000000">50L - 1Cr</button>
+        <button class="filter-pill" data-minprice="10000000">1Cr+</button>
+      </div>
     </div>
   </section>
 
-  <!-- Search / Filter Bar -->
-  <div class="container">
-    <div class="search-bar">
-      <div class="search-filters">
-        <div class="filter-group">
-          <label>City</label>
-          <input type="text" id="filterCity" placeholder="e.g. Mumbai">
-        </div>
-        <div class="filter-group">
-          <label>Type</label>
-          <select id="filterType">
-            <option value="">All Types</option>
-            <option value="Apartment">Apartment</option>
-            <option value="House/Villa">House/Villa</option>
-            <option value="Plot">Plot</option>
-            <option value="Commercial">Commercial</option>
-            <option value="PG/Hostel">PG/Hostel</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label>For</label>
-          <select id="filterListingType">
-            <option value="">Buy & Rent</option>
-            <option value="Sale">Buy</option>
-            <option value="Rent">Rent</option>
-          </select>
-        </div>
-        <div class="filter-group">
-          <label>Min Price</label>
-          <input type="number" id="filterMinPrice" placeholder="0">
-        </div>
-        <div class="filter-group">
-          <label>Max Price</label>
-          <input type="number" id="filterMaxPrice" placeholder="Any">
-        </div>
-        <div class="filter-group">
-          <label>Bedrooms</label>
-          <select id="filterBedrooms">
-            <option value="">Any</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4+</option>
-          </select>
-        </div>
-        <div class="filter-group filter-actions">
-          <button class="btn-primary" id="searchBtn">Search</button>
-          <button class="btn-outline" id="clearBtn">Clear</button>
-        </div>
+  <!-- Advanced Filters (collapsed) -->
+  <div class="filters-section">
+    <div class="filters-row">
+      <div class="filter-group">
+        <label>Type</label>
+        <select id="filterType">
+          <option value="">All Types</option>
+          <option value="Apartment">Apartment</option>
+          <option value="House/Villa">House/Villa</option>
+          <option value="Plot">Plot</option>
+          <option value="Commercial">Commercial</option>
+          <option value="PG/Hostel">PG/Hostel</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>For</label>
+        <select id="filterListingType">
+          <option value="">Buy & Rent</option>
+          <option value="Sale">Buy</option>
+          <option value="Rent">Rent</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Min Price</label>
+        <input type="number" id="filterMinPrice" placeholder="0">
+      </div>
+      <div class="filter-group">
+        <label>Max Price</label>
+        <input type="number" id="filterMaxPrice" placeholder="Any">
+      </div>
+      <div class="filter-group">
+        <label>Bedrooms</label>
+        <select id="filterBedrooms">
+          <option value="">Any</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4+</option>
+        </select>
+      </div>
+      <div class="filter-actions">
+        <button class="btn-outline" id="clearBtn" style="padding:8px 16px;font-size:13px;">Clear</button>
       </div>
     </div>
+  </div>
 
+  <!-- Content -->
+  <div class="container">
     <!-- Sort Bar -->
     <div class="results-bar">
       <span id="resultsCount">Loading properties...</span>
@@ -161,10 +209,30 @@
     </div>
   </footer>
 
+  <!-- Bottom Nav (Mobile) -->
+  <nav class="bottom-nav">
+    <a href="index.html" class="bottom-nav-item active">
+      <span class="bottom-nav-icon">🏠</span>
+      Home
+    </a>
+    <a href="post.html" class="bottom-nav-item">
+      <span class="bottom-nav-icon">➕</span>
+      Post
+    </a>
+    <a href="my-listings.html" class="bottom-nav-item">
+      <span class="bottom-nav-icon">📋</span>
+      My Listings
+    </a>
+    <a href="#" class="bottom-nav-item" id="bottomNavSignIn">
+      <span class="bottom-nav-icon">👤</span>
+      <span id="bottomNavSignInLabel">Sign In</span>
+    </a>
+  </nav>
+
   <div class="toast-container" id="toastContainer"></div>
 
   <script src="config.js?v=2"></script>
-  <script type="module" src="app.js?v=1"></script>
+  <script type="module" src="app.js?v=2"></script>
 
 </body>
 </html>

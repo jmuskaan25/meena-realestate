@@ -76,6 +76,9 @@ if (auth) {
       if (userAvatarLarge) userAvatarLarge.src = user.photoURL || '';
       userName.textContent = user.displayName || 'User';
       if (userEmail) userEmail.textContent = user.email || '';
+      // Update bottom nav
+      const bottomNavLabel = document.getElementById('bottomNavSignInLabel');
+      if (bottomNavLabel) bottomNavLabel.textContent = 'Profile';
       if (sessionStorage.getItem('via_admin') === '1') {
         const adminLink = document.getElementById('adminLink');
         const adminLinkMobile = document.getElementById('adminLinkMobile');
@@ -86,6 +89,8 @@ if (auth) {
       sessionStorage.removeItem('via_authed');
       signedOutView.style.display = 'block';
       signedInView.style.display = 'none';
+      const bottomNavLabel = document.getElementById('bottomNavSignInLabel');
+      if (bottomNavLabel) bottomNavLabel.textContent = 'Sign In';
     }
   });
 }
@@ -93,6 +98,30 @@ if (auth) {
 // Header sign-in button
 if (headerSignInBtn) {
   headerSignInBtn.addEventListener('click', async () => {
+    if (!auth) { showToast('Firebase not initialized.', 'error'); return; }
+    try {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      await signInWithPopup(auth, provider);
+    } catch (err) {
+      if (err.code !== 'auth/popup-closed-by-user') {
+        showToast(`Sign-in failed: ${err.message}`, 'error');
+      }
+    }
+  });
+}
+
+// Bottom nav sign-in
+const bottomNavSignIn = document.getElementById('bottomNavSignIn');
+if (bottomNavSignIn) {
+  bottomNavSignIn.addEventListener('click', async (e) => {
+    if (currentUser) {
+      // Already signed in - could navigate to profile or toggle dropdown
+      e.preventDefault();
+      if (userAvatar) userAvatar.click();
+      return;
+    }
+    e.preventDefault();
     if (!auth) { showToast('Firebase not initialized.', 'error'); return; }
     try {
       const provider = new GoogleAuthProvider();
@@ -146,6 +175,64 @@ if (mobileMenuBtn && mobileNav) {
   });
 }
 
+// ---- Category Bar ----
+const categoryItems = document.querySelectorAll('.category-item[data-filter-type]');
+categoryItems.forEach(item => {
+  item.addEventListener('click', () => {
+    // Update active state
+    document.querySelectorAll('.category-item').forEach(c => c.classList.remove('active'));
+    item.classList.add('active');
+
+    // Apply category filter
+    const type = item.dataset.filterType || '';
+    const listing = item.dataset.filterListing || '';
+    filterType.value = type;
+    filterListingType.value = listing;
+    applyFiltersAndSort();
+  });
+});
+
+// ---- Filter Pills ----
+const filterPills = document.querySelectorAll('.filter-pill');
+filterPills.forEach(pill => {
+  pill.addEventListener('click', () => {
+    const wasActive = pill.classList.contains('active');
+
+    // Deactivate all pills
+    filterPills.forEach(p => p.classList.remove('active'));
+
+    if (wasActive) {
+      // Clear the pill filter
+      filterBedrooms.value = '';
+      filterType.value = '';
+      filterMinPrice.value = '';
+      filterMaxPrice.value = '';
+    } else {
+      pill.classList.add('active');
+
+      // Reset other filters from pills
+      filterBedrooms.value = '';
+      filterMinPrice.value = '';
+      filterMaxPrice.value = '';
+
+      if (pill.dataset.bedroom) {
+        filterBedrooms.value = pill.dataset.bedroom;
+      }
+      if (pill.dataset.type) {
+        filterType.value = pill.dataset.type;
+      }
+      if (pill.dataset.minprice) {
+        filterMinPrice.value = pill.dataset.minprice;
+      }
+      if (pill.dataset.maxprice) {
+        filterMaxPrice.value = pill.dataset.maxprice;
+      }
+    }
+
+    applyFiltersAndSort();
+  });
+});
+
 // ---- Toast ----
 function showToast(message, type = 'info') {
   const toast = document.createElement('div');
@@ -174,7 +261,7 @@ function formatPriceShort(num) {
 // ---- Load Properties ----
 async function loadProperties() {
   if (!db) {
-    propertyGrid.innerHTML = '<p style="text-align:center;color:#9ca3af;padding:48px;">Firebase not configured. Please update config.js.</p>';
+    propertyGrid.innerHTML = '<p style="text-align:center;color:#8993a4;padding:48px;">Firebase not configured. Please update config.js.</p>';
     return;
   }
 
@@ -191,7 +278,7 @@ async function loadProperties() {
     applyFiltersAndSort();
   } catch (err) {
     console.error('Error loading properties:', err);
-    propertyGrid.innerHTML = '<p style="text-align:center;color:#ef4444;padding:48px;">Failed to load properties. Please refresh.</p>';
+    propertyGrid.innerHTML = '<p style="text-align:center;color:#e53935;padding:48px;">Failed to load properties. Please refresh.</p>';
   }
 }
 
@@ -205,7 +292,7 @@ function applyFiltersAndSort() {
   const bedrooms = filterBedrooms.value;
 
   filteredProperties = allProperties.filter(p => {
-    if (city && !(p.city || '').toLowerCase().includes(city)) return false;
+    if (city && !(p.city || '').toLowerCase().includes(city) && !(p.locality || '').toLowerCase().includes(city) && !(p.title || '').toLowerCase().includes(city)) return false;
     if (type && p.type !== type) return false;
     if (listingType && p.listingType !== listingType) return false;
     if (p.price < minPrice) return false;
@@ -305,6 +392,12 @@ clearBtn.addEventListener('click', () => {
   filterMaxPrice.value = '';
   filterBedrooms.value = '';
   sortBy.value = 'newest';
+  // Reset category bar
+  document.querySelectorAll('.category-item').forEach(c => c.classList.remove('active'));
+  const allCategory = document.querySelector('.category-item[data-filter-type=""][data-filter-listing=""]');
+  if (allCategory) allCategory.classList.add('active');
+  // Reset filter pills
+  filterPills.forEach(p => p.classList.remove('active'));
   applyFiltersAndSort();
 });
 
@@ -312,6 +405,11 @@ clearBtn.addEventListener('click', () => {
 filterCity.addEventListener('keydown', (e) => {
   if (e.key === 'Enter') applyFiltersAndSort();
 });
+
+// Also apply filters when dropdowns change
+filterType.addEventListener('change', applyFiltersAndSort);
+filterListingType.addEventListener('change', applyFiltersAndSort);
+filterBedrooms.addEventListener('change', applyFiltersAndSort);
 
 // ---- Utility ----
 function escapeHtml(str) {
