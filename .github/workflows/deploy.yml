@@ -36,7 +36,6 @@ jobs:
               appId: '${{ secrets.FIREBASE_APP_ID }}'
             }
           };
-          export default CONFIG;
           SCRIPT
 
       - uses: actions/configure-pages@v5
