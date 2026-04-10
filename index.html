@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meena Real Estate Agency</title>
+  <link rel="stylesheet" href="styles.css?v=1">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <header class="header">
+    <div class="header-content">
+      <a href="index.html" class="header-brand">
+        <span class="header-logo">🏠</span>
+        <div>
+          <div class="header-title">Meena Real Estate</div>
+          <div class="header-subtitle">Find your dream property</div>
+        </div>
+      </a>
+      <nav class="header-nav">
+        <a href="index.html" class="nav-link active">Home</a>
+        <a href="post.html" class="nav-link">Post Property</a>
+        <a href="my-listings.html" class="nav-link">My Listings</a>
+        <a href="admin.html" class="nav-link" id="adminLink" style="display:none;">Admin</a>
+      </nav>
+      <div class="header-actions">
+        <div id="signedInView" style="display:none;" class="profile-menu-wrapper">
+          <img id="userAvatar" src="" alt="" class="profile-avatar">
+          <div id="profileDropdown" class="profile-dropdown" style="display:none;">
+            <div class="profile-dropdown-header">
+              <img id="userAvatarLarge" src="" alt="" class="profile-avatar-large">
+              <div>
+                <div class="profile-dropdown-name" id="userName"></div>
+                <div class="profile-dropdown-email" id="userEmail"></div>
+              </div>
+            </div>
+            <hr class="profile-dropdown-divider">
+            <button class="profile-dropdown-signout" id="signOutLink">Sign out</button>
+          </div>
+        </div>
+        <div id="signedOutView">
+          <button class="btn-signin" id="headerSignInBtn">Sign In</button>
+        </div>
+      </div>
+      <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Nav -->
+  <div class="mobile-nav" id="mobileNav" style="display:none;">
+    <a href="index.html" class="nav-link active">Home</a>
+    <a href="post.html" class="nav-link">Post Property</a>
+    <a href="my-listings.html" class="nav-link">My Listings</a>
+    <a href="admin.html" class="nav-link" id="adminLinkMobile" style="display:none;">Admin</a>
+  </div>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-inner">
+      <h1>Find Your Dream Property</h1>
+      <p>Browse apartments, houses, plots and commercial spaces across India</p>
+    </div>
+  </section>
+
+  <!-- Search / Filter Bar -->
+  <div class="container">
+    <div class="search-bar">
+      <div class="search-filters">
+        <div class="filter-group">
+          <label>City</label>
+          <input type="text" id="filterCity" placeholder="e.g. Mumbai">
+        </div>
+        <div class="filter-group">
+          <label>Type</label>
+          <select id="filterType">
+            <option value="">All Types</option>
+            <option value="Apartment">Apartment</option>
+            <option value="House/Villa">House/Villa</option>
+            <option value="Plot">Plot</option>
+            <option value="Commercial">Commercial</option>
+            <option value="PG/Hostel">PG/Hostel</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>For</label>
+          <select id="filterListingType">
+            <option value="">Buy & Rent</option>
+            <option value="Sale">Buy</option>
+            <option value="Rent">Rent</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label>Min Price</label>
+          <input type="number" id="filterMinPrice" placeholder="0">
+        </div>
+        <div class="filter-group">
+          <label>Max Price</label>
+          <input type="number" id="filterMaxPrice" placeholder="Any">
+        </div>
+        <div class="filter-group">
+          <label>Bedrooms</label>
+          <select id="filterBedrooms">
+            <option value="">Any</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4+</option>
+          </select>
+        </div>
+        <div class="filter-group filter-actions">
+          <button class="btn-primary" id="searchBtn">Search</button>
+          <button class="btn-outline" id="clearBtn">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sort Bar -->
+    <div class="results-bar">
+      <span id="resultsCount">Loading properties...</span>
+      <div class="sort-group">
+        <label>Sort by:</label>
+        <select id="sortBy">
+          <option value="newest">Newest</option>
+          <option value="price-low">Price: Low to High</option>
+          <option value="price-high">Price: High to Low</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Property Grid -->
+    <div class="property-grid" id="propertyGrid">
+      <!-- Cards injected by JS -->
+    </div>
+
+    <!-- Load More -->
+    <div class="load-more-wrapper" id="loadMoreWrapper" style="display:none;">
+      <button class="btn-outline btn-load-more" id="loadMoreBtn">Load More</button>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" id="emptyState" style="display:none;">
+      <span class="empty-icon">🏘️</span>
+      <p>No properties found. Try adjusting your filters.</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <span>🏠</span> Meena Real Estate Agency
+      </div>
+      <div class="footer-info">
+        <p>Standard brokerage of 2% applies on successful property transactions facilitated by Meena Real Estate Agency.</p>
+        <p class="footer-copy">&copy; 2026 Meena Real Estate Agency. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="config.js"></script>
+  <script type="module" src="app.js?v=1"></script>
+
+</body>
+</html>

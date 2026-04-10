@@ -1,0 +1,350 @@
+// ============================================
+// Meena Real Estate - Admin Panel
+// ============================================
+
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getAuth, signInWithPopup, signOut, onAuthStateChanged, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+// ---- Firebase Init ----
+let db = null;
+let auth = null;
+let currentUser = null;
+
+try {
+  const app = initializeApp(CONFIG.FIREBASE);
+  db = getFirestore(app);
+  auth = getAuth(app);
+} catch (e) {
+  console.warn('Firebase not configured yet.', e);
+}
+
+// ---- DOM Refs ----
+const adminBody = document.getElementById('adminBody');
+const toastContainer = document.getElementById('toastContainer');
+const signInWall = document.getElementById('signInWall');
+const wallSignInBtn = document.getElementById('wallSignInBtn');
+const adminToggleBtn = document.getElementById('adminToggleBtn');
+const adminPasswordField = document.getElementById('adminPasswordField');
+const adminPasswordInput = document.getElementById('adminPasswordInput');
+
+// Auth refs
+const signedInView = document.getElementById('signedInView');
+const signedOutView = document.getElementById('signedOutView');
+const userAvatar = document.getElementById('userAvatar');
+const userName = document.getElementById('userName');
+const userEmail = document.getElementById('userEmail');
+const signOutLink = document.getElementById('signOutLink');
+
+localStorage.removeItem('via_signing_in');
+
+// ---- Admin Toggle ----
+if (adminToggleBtn && adminPasswordField) {
+  adminToggleBtn.addEventListener('click', () => {
+    const isVisible = adminPasswordField.style.display !== 'none';
+    adminPasswordField.style.display = isVisible ? 'none' : 'block';
+    adminToggleBtn.textContent = isVisible ? 'Sign in as Admin' : 'Cancel admin login';
+  });
+}
+
+// Hide wall if already authed as admin
+if (sessionStorage.getItem('via_authed') === '1' && sessionStorage.getItem('via_admin') === '1' && signInWall) {
+  signInWall.style.display = 'none';
+}
+
+// ---- Auth ----
+if (auth) {
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      currentUser = user;
+      if (sessionStorage.getItem('via_admin') === '1') {
+        sessionStorage.setItem('via_authed', '1');
+        if (signInWall) signInWall.style.display = 'none';
+        if (signedOutView) signedOutView.style.display = 'none';
+        signedInView.style.display = 'flex';
+        userAvatar.src = user.photoURL || '';
+        const userAvatarLarge = document.getElementById('userAvatarLarge');
+        if (userAvatarLarge) userAvatarLarge.src = user.photoURL || '';
+        userName.textContent = user.displayName || 'User';
+        if (userEmail) userEmail.textContent = user.email || '';
+        loadAllListings();
+      } else {
+        showToast('Admin access required.', 'error');
+        setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+      }
+    } else {
+      sessionStorage.removeItem('via_authed');
+      if (signInWall) signInWall.style.display = 'flex';
+    }
+  });
+}
+
+// ---- Wall Sign-In ----
+wallSignInBtn.addEventListener('click', async () => {
+  if (!auth) { showToast('Firebase not initialized.', 'error'); return; }
+
+  wallSignInBtn.disabled = true;
+  wallSignInBtn.textContent = 'Signing in...';
+
+  const isAdminAttempt = adminPasswordField && adminPasswordField.style.display !== 'none';
+  if (!isAdminAttempt) {
+    showToast('Please use the admin login toggle below.', 'error');
+    wallSignInBtn.disabled = false;
+    wallSignInBtn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google"> Continue with Google';
+    return;
+  }
+
+  if (!adminPasswordInput || adminPasswordInput.value !== 'admin') {
+    showToast('Incorrect admin password.', 'error');
+    wallSignInBtn.disabled = false;
+    wallSignInBtn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google"> Continue with Google';
+    return;
+  }
+
+  try {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    const result = await signInWithPopup(auth, provider);
+    if (result.user) {
+      sessionStorage.setItem('via_authed', '1');
+      sessionStorage.setItem('via_admin', '1');
+      if (signInWall) signInWall.style.display = 'none';
+    }
+  } catch (err) {
+    wallSignInBtn.disabled = false;
+    wallSignInBtn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google"> Continue with Google';
+    if (err.code !== 'auth/popup-closed-by-user') {
+      showToast(`Sign-in failed: ${err.message}`, 'error');
+    }
+  }
+});
+
+// Sign out
+if (signOutLink) {
+  signOutLink.addEventListener('click', async () => {
+    if (!auth) return;
+    try {
+      sessionStorage.removeItem('via_admin');
+      await signOut(auth);
+      showToast('Signed out.', 'info');
+    } catch (err) {
+      console.error('Sign-out error:', err);
+    }
+  });
+}
+
+// Profile dropdown
+const profileDropdown = document.getElementById('profileDropdown');
+if (userAvatar) {
+  userAvatar.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (!profileDropdown) return;
+    profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
+  });
+}
+if (profileDropdown) {
+  document.addEventListener('click', () => { profileDropdown.style.display = 'none'; });
+  profileDropdown.addEventListener('click', (e) => e.stopPropagation());
+}
+
+// Mobile menu
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const mobileNav = document.getElementById('mobileNav');
+if (mobileMenuBtn && mobileNav) {
+  mobileMenuBtn.addEventListener('click', () => {
+    const isOpen = mobileNav.style.display !== 'none';
+    mobileNav.style.display = isOpen ? 'none' : 'flex';
+    mobileMenuBtn.classList.toggle('open', !isOpen);
+  });
+}
+
+// ---- Toast ----
+function showToast(message, type = 'info') {
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+  toastContainer.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// ---- Price Formatting ----
+function formatPriceShort(num) {
+  if (num == null) return '--';
+  if (num >= 10000000) {
+    return `${(num / 10000000).toFixed(2).replace(/\.?0+$/, '')} Cr`;
+  } else if (num >= 100000) {
+    return `${(num / 100000).toFixed(2).replace(/\.?0+$/, '')} Lac`;
+  }
+  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(num);
+}
+
+// ---- Load All Listings ----
+async function loadAllListings() {
+  if (!db) return;
+
+  adminBody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:32px;color:#9ca3af;">Loading...</td></tr>';
+
+  try {
+    const snapshot = await getDocs(collection(db, 'properties'));
+
+    if (snapshot.empty) {
+      adminBody.innerHTML = '<tr><td colspan="11"><div class="empty-state"><span class="empty-icon">📭</span><p>No listings yet.</p></div></td></tr>';
+      return;
+    }
+
+    const docs = [];
+    snapshot.forEach(d => docs.push({ id: d.id, ...d.data() }));
+    docs.sort((a, b) => {
+      const ta = a.postedAt?.toDate?.() || new Date(0);
+      const tb = b.postedAt?.toDate?.() || new Date(0);
+      return tb - ta;
+    });
+
+    // Update stats
+    const total = docs.length;
+    const active = docs.filter(d => d.status === 'active').length;
+    const sold = docs.filter(d => d.status === 'sold').length;
+    const inactive = docs.filter(d => d.status === 'inactive').length;
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statActive').textContent = active;
+    document.getElementById('statSold').textContent = sold;
+    document.getElementById('statInactive').textContent = inactive;
+
+    adminBody.innerHTML = '';
+    docs.forEach(d => {
+      const tr = document.createElement('tr');
+
+      const postedAt = d.postedAt?.toDate
+        ? d.postedAt.toDate().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+        : '--';
+
+      const status = d.status || 'active';
+
+      tr.innerHTML = `
+        <td style="white-space:nowrap;">${escapeHtml(postedAt)}</td>
+        <td><a href="listing.html?id=${escapeHtml(d.id)}" style="color:#1a365d;font-weight:500;">${escapeHtml(d.title || '--')}</a></td>
+        <td>${escapeHtml(d.type || '--')}</td>
+        <td><strong>${escapeHtml(formatPriceShort(d.price))}</strong></td>
+        <td>${escapeHtml(d.city || '--')}</td>
+        <td>${escapeHtml(d.postedBy || '--')}</td>
+        <td>${d.views || 0}</td>
+        <td>
+          <select class="status-select status-${escapeHtml(status)}" data-doc-id="${escapeHtml(d.id)}" data-current="${escapeHtml(status)}">
+            <option value="active" ${status === 'active' ? 'selected' : ''}>Active</option>
+            <option value="sold" ${status === 'sold' ? 'selected' : ''}>Sold</option>
+            <option value="inactive" ${status === 'inactive' ? 'selected' : ''}>Inactive</option>
+          </select>
+        </td>
+        <td>
+          <label class="toggle-switch">
+            <input type="checkbox" class="featured-toggle" data-doc-id="${escapeHtml(d.id)}" ${d.featured ? 'checked' : ''}>
+            <span class="toggle-slider"></span>
+          </label>
+        </td>
+        <td>
+          <input type="number" class="brokerage-input" data-doc-id="${escapeHtml(d.id)}" value="${d.brokeragePercent != null ? d.brokeragePercent : 2}" min="0" max="100" step="0.5">
+        </td>
+        <td>
+          <button class="btn-small btn-delete-admin" data-doc-id="${escapeHtml(d.id)}">Delete</button>
+        </td>
+      `;
+
+      adminBody.appendChild(tr);
+    });
+
+    // Status change listeners
+    adminBody.querySelectorAll('.status-select').forEach(select => {
+      select.addEventListener('change', async (e) => {
+        const docId = e.target.dataset.docId;
+        const newStatus = e.target.value;
+        const oldStatus = e.target.dataset.current;
+        if (newStatus === oldStatus) return;
+
+        e.target.disabled = true;
+        try {
+          await updateDoc(doc(db, 'properties', docId), { status: newStatus });
+          e.target.dataset.current = newStatus;
+          e.target.className = `status-select status-${newStatus}`;
+          showToast(`Status updated to ${newStatus}`, 'success');
+          // Update stats
+          loadAllListings();
+        } catch (err) {
+          e.target.value = oldStatus;
+          showToast(`Failed: ${err.message}`, 'error');
+        } finally {
+          e.target.disabled = false;
+        }
+      });
+    });
+
+    // Featured toggle listeners
+    adminBody.querySelectorAll('.featured-toggle').forEach(toggle => {
+      toggle.addEventListener('change', async (e) => {
+        const docId = e.target.dataset.docId;
+        const featured = e.target.checked;
+        e.target.disabled = true;
+        try {
+          await updateDoc(doc(db, 'properties', docId), { featured });
+          showToast(featured ? 'Marked as featured' : 'Removed from featured', 'success');
+        } catch (err) {
+          e.target.checked = !featured;
+          showToast(`Failed: ${err.message}`, 'error');
+        } finally {
+          e.target.disabled = false;
+        }
+      });
+    });
+
+    // Brokerage change listeners
+    adminBody.querySelectorAll('.brokerage-input').forEach(input => {
+      input.addEventListener('change', async (e) => {
+        const docId = e.target.dataset.docId;
+        const val = parseFloat(e.target.value);
+        if (isNaN(val) || val < 0 || val > 100) {
+          showToast('Invalid brokerage value.', 'error');
+          return;
+        }
+        e.target.disabled = true;
+        try {
+          await updateDoc(doc(db, 'properties', docId), { brokeragePercent: val });
+          showToast(`Brokerage updated to ${val}%`, 'success');
+        } catch (err) {
+          showToast(`Failed: ${err.message}`, 'error');
+        } finally {
+          e.target.disabled = false;
+        }
+      });
+    });
+
+    // Delete listeners
+    adminBody.querySelectorAll('.btn-delete-admin').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('Are you sure you want to delete this listing?')) return;
+        const docId = btn.dataset.docId;
+        btn.disabled = true;
+        btn.textContent = '...';
+        try {
+          await deleteDoc(doc(db, 'properties', docId));
+          showToast('Listing deleted.', 'success');
+          loadAllListings();
+        } catch (err) {
+          showToast(`Failed: ${err.message}`, 'error');
+          btn.disabled = false;
+          btn.textContent = 'Delete';
+        }
+      });
+    });
+
+  } catch (err) {
+    console.error('Error loading listings:', err);
+    adminBody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:32px;color:#ef4444;">Failed to load. Please refresh.</td></tr>';
+  }
+}
+
+// ---- Utility ----
+function escapeHtml(str) {
+  if (str == null) return '';
+  const div = document.createElement('div');
+  div.textContent = String(str);
+  return div.innerHTML;
+}

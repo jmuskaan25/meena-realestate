@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Meena Real Estate Agency</title>
+  <link rel="stylesheet" href="styles.css?v=1">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
+</head>
+<body>
+
+  <!-- Sign-In Wall with Admin Password -->
+  <div id="signInWall" class="signin-wall" style="display:flex; position:fixed; inset:0; z-index:9999; background:#f9fafb; align-items:center; justify-content:center;">
+    <div class="signin-card">
+      <span class="signin-logo">🏠</span>
+      <h1>Meena Real Estate</h1>
+      <p class="subtitle">Admin access required</p>
+      <button class="google-btn" id="wallSignInBtn">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google">
+        Continue with Google
+      </button>
+      <div style="margin-top: 20px;">
+        <button type="button" id="adminToggleBtn" class="admin-toggle-btn">Sign in as Admin</button>
+        <div id="adminPasswordField" style="display:none; margin-top: 12px;">
+          <input type="password" id="adminPasswordInput" placeholder="Enter admin password" class="admin-password-input">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <header class="header">
+    <div class="header-content">
+      <a href="index.html" class="header-brand">
+        <span class="header-logo">🏠</span>
+        <div>
+          <div class="header-title">Meena Real Estate</div>
+          <div class="header-subtitle">Admin Panel</div>
+        </div>
+      </a>
+      <nav class="header-nav">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="post.html" class="nav-link">Post Property</a>
+        <a href="my-listings.html" class="nav-link">My Listings</a>
+        <a href="admin.html" class="nav-link active">Admin</a>
+      </nav>
+      <div class="header-actions">
+        <div id="signedInView" style="display:none;" class="profile-menu-wrapper">
+          <img id="userAvatar" src="" alt="" class="profile-avatar">
+          <div id="profileDropdown" class="profile-dropdown" style="display:none;">
+            <div class="profile-dropdown-header">
+              <img id="userAvatarLarge" src="" alt="" class="profile-avatar-large">
+              <div>
+                <div class="profile-dropdown-name" id="userName"></div>
+                <div class="profile-dropdown-email" id="userEmail"></div>
+              </div>
+            </div>
+            <hr class="profile-dropdown-divider">
+            <button class="profile-dropdown-signout" id="signOutLink">Sign out</button>
+          </div>
+        </div>
+        <div id="signedOutView" style="display:none;"></div>
+      </div>
+      <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="mobile-nav" id="mobileNav" style="display:none;">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="post.html" class="nav-link">Post Property</a>
+    <a href="my-listings.html" class="nav-link">My Listings</a>
+    <a href="admin.html" class="nav-link active">Admin</a>
+  </div>
+
+  <div class="container">
+    <div class="page-header">
+      <h2>Admin Panel</h2>
+      <p>Manage all property listings</p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="admin-stats" id="adminStats">
+      <div class="stat-card">
+        <div class="stat-card-value" id="statTotal">0</div>
+        <div class="stat-card-label">Total Listings</div>
+      </div>
+      <div class="stat-card stat-card-active">
+        <div class="stat-card-value" id="statActive">0</div>
+        <div class="stat-card-label">Active</div>
+      </div>
+      <div class="stat-card stat-card-sold">
+        <div class="stat-card-value" id="statSold">0</div>
+        <div class="stat-card-label">Sold</div>
+      </div>
+      <div class="stat-card stat-card-inactive">
+        <div class="stat-card-value" id="statInactive">0</div>
+        <div class="stat-card-label">Inactive</div>
+      </div>
+    </div>
+
+    <!-- Listings Table -->
+    <div class="card">
+      <div class="card-header">
+        <span class="icon">🔧</span>
+        <h2>All Properties</h2>
+      </div>
+      <div class="card-body" style="padding:0;">
+        <div class="submissions-table-wrapper">
+          <table class="submissions-table" id="adminTable">
+            <thead>
+              <tr>
+                <th>Posted</th>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Price</th>
+                <th>City</th>
+                <th>Posted By</th>
+                <th>Views</th>
+                <th>Status</th>
+                <th>Featured</th>
+                <th>Brokerage %</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminBody">
+              <tr><td colspan="11"><div class="empty-state"><span class="empty-icon">📭</span><p>Loading...</p></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand"><span>🏠</span> Meena Real Estate Agency</div>
+      <div class="footer-info">
+        <p>Standard brokerage of 2% applies on successful property transactions facilitated by Meena Real Estate Agency.</p>
+        <p class="footer-copy">&copy; 2026 Meena Real Estate Agency. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="config.js"></script>
+  <script type="module" src="admin.js?v=1"></script>
+
+</body>
+</html>

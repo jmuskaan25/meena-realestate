@@ -1,0 +1,373 @@
+// ============================================
+// Meena Real Estate - Listing Detail Page
+// ============================================
+
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getAuth, signInWithPopup, signOut, onAuthStateChanged, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js';
+
+// ---- Firebase Init ----
+let db = null;
+let auth = null;
+let functions = null;
+let currentUser = null;
+
+try {
+  const app = initializeApp(CONFIG.FIREBASE);
+  db = getFirestore(app);
+  auth = getAuth(app);
+  functions = getFunctions(app);
+} catch (e) {
+  console.warn('Firebase not configured yet.', e);
+}
+
+// ---- DOM Refs ----
+const listingLoading = document.getElementById('listingLoading');
+const listingNotFound = document.getElementById('listingNotFound');
+const listingDetail = document.getElementById('listingDetail');
+const toastContainer = document.getElementById('toastContainer');
+
+// Auth refs
+const signedInView = document.getElementById('signedInView');
+const signedOutView = document.getElementById('signedOutView');
+const userAvatar = document.getElementById('userAvatar');
+const userName = document.getElementById('userName');
+const userEmail = document.getElementById('userEmail');
+const signOutLink = document.getElementById('signOutLink');
+const headerSignInBtn = document.getElementById('headerSignInBtn');
+
+// ---- State ----
+let propertyData = null;
+let currentImageIndex = 0;
+
+// ---- Get Property ID ----
+const params = new URLSearchParams(window.location.search);
+const propertyId = params.get('id');
+
+// ---- Auth ----
+if (sessionStorage.getItem('via_admin') === '1') {
+  const adminLink = document.getElementById('adminLink');
+  const adminLinkMobile = document.getElementById('adminLinkMobile');
+  if (adminLink) adminLink.style.display = 'inline-flex';
+  if (adminLinkMobile) adminLinkMobile.style.display = 'block';
+}
+
+if (auth) {
+  onAuthStateChanged(auth, (user) => {
+    currentUser = user;
+    if (user) {
+      sessionStorage.setItem('via_authed', '1');
+      signedOutView.style.display = 'none';
+      signedInView.style.display = 'flex';
+      userAvatar.src = user.photoURL || '';
+      const userAvatarLarge = document.getElementById('userAvatarLarge');
+      if (userAvatarLarge) userAvatarLarge.src = user.photoURL || '';
+      userName.textContent = user.displayName || 'User';
+      if (userEmail) userEmail.textContent = user.email || '';
+
+      // Show contact info if signed in and property loaded
+      updateContactVisibility();
+    } else {
+      sessionStorage.removeItem('via_authed');
+      signedOutView.style.display = 'block';
+      signedInView.style.display = 'none';
+      updateContactVisibility();
+    }
+  });
+}
+
+function updateContactVisibility() {
+  const contactHidden = document.getElementById('contactHidden');
+  const contactVisible = document.getElementById('contactVisible');
+  if (!contactHidden || !contactVisible) return;
+
+  if (currentUser && propertyData) {
+    contactHidden.style.display = 'none';
+    contactVisible.style.display = 'block';
+  } else {
+    contactHidden.style.display = 'block';
+    contactVisible.style.display = 'none';
+  }
+}
+
+// Header sign-in
+if (headerSignInBtn) {
+  headerSignInBtn.addEventListener('click', async () => {
+    if (!auth) { showToast('Firebase not initialized.', 'error'); return; }
+    try {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      await signInWithPopup(auth, provider);
+    } catch (err) {
+      if (err.code !== 'auth/popup-closed-by-user') {
+        showToast(`Sign-in failed: ${err.message}`, 'error');
+      }
+    }
+  });
+}
+
+// Contact sign-in button
+const contactSignInBtn = document.getElementById('contactSignInBtn');
+if (contactSignInBtn) {
+  contactSignInBtn.addEventListener('click', async () => {
+    if (!auth) { showToast('Firebase not initialized.', 'error'); return; }
+    try {
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({ prompt: 'select_account' });
+      await signInWithPopup(auth, provider);
+    } catch (err) {
+      if (err.code !== 'auth/popup-closed-by-user') {
+        showToast(`Sign-in failed: ${err.message}`, 'error');
+      }
+    }
+  });
+}
+
+// Sign out
+if (signOutLink) {
+  signOutLink.addEventListener('click', async () => {
+    if (!auth) return;
+    try {
+      sessionStorage.removeItem('via_admin');
+      await signOut(auth);
+      showToast('Signed out.', 'info');
+    } catch (err) {
+      console.error('Sign-out error:', err);
+    }
+  });
+}
+
+// Profile dropdown
+const profileDropdown = document.getElementById('profileDropdown');
+if (userAvatar) {
+  userAvatar.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (!profileDropdown) return;
+    const isOpen = profileDropdown.style.display === 'block';
+    profileDropdown.style.display = isOpen ? 'none' : 'block';
+  });
+}
+if (profileDropdown) {
+  document.addEventListener('click', () => { profileDropdown.style.display = 'none'; });
+  profileDropdown.addEventListener('click', (e) => e.stopPropagation());
+}
+
+// Mobile menu
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const mobileNav = document.getElementById('mobileNav');
+if (mobileMenuBtn && mobileNav) {
+  mobileMenuBtn.addEventListener('click', () => {
+    const isOpen = mobileNav.style.display !== 'none';
+    mobileNav.style.display = isOpen ? 'none' : 'flex';
+    mobileMenuBtn.classList.toggle('open', !isOpen);
+  });
+}
+
+// ---- Toast ----
+function showToast(message, type = 'info') {
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+  toastContainer.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// ---- Price Formatting ----
+function formatPriceINR(num) {
+  if (num == null) return '--';
+  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(num);
+}
+
+function formatPriceShort(num) {
+  if (num == null) return '';
+  if (num >= 10000000) {
+    return `${(num / 10000000).toFixed(2).replace(/\.?0+$/, '')} Cr`;
+  } else if (num >= 100000) {
+    return `${(num / 100000).toFixed(2).replace(/\.?0+$/, '')} Lac`;
+  }
+  return '';
+}
+
+// ---- Load Property ----
+async function loadProperty() {
+  if (!db || !propertyId) {
+    listingLoading.style.display = 'none';
+    listingNotFound.style.display = 'block';
+    return;
+  }
+
+  try {
+    const docSnap = await getDoc(doc(db, 'properties', propertyId));
+
+    if (!docSnap.exists()) {
+      listingLoading.style.display = 'none';
+      listingNotFound.style.display = 'block';
+      return;
+    }
+
+    propertyData = { id: docSnap.id, ...docSnap.data() };
+    renderProperty();
+
+    // Increment view count
+    if (functions) {
+      try {
+        const incrementViewsFn = httpsCallable(functions, 'incrementViews');
+        await incrementViewsFn({ propertyId });
+      } catch (err) {
+        console.warn('Could not increment views:', err);
+      }
+    }
+  } catch (err) {
+    console.error('Error loading property:', err);
+    listingLoading.style.display = 'none';
+    listingNotFound.style.display = 'block';
+  }
+}
+
+// ---- Render Property ----
+function renderProperty() {
+  const p = propertyData;
+  listingLoading.style.display = 'none';
+  listingDetail.style.display = 'block';
+
+  // Title
+  document.title = `${p.title} - Meena Real Estate Agency`;
+  document.getElementById('listingTitle').textContent = p.title || 'Untitled Property';
+
+  // Badges
+  const listingTypeBadge = document.getElementById('listingTypeBadge');
+  listingTypeBadge.textContent = p.listingType || 'Sale';
+  listingTypeBadge.className = `badge-listing-type ${p.listingType === 'Rent' ? 'badge-rent' : 'badge-sale'}`;
+  document.getElementById('propertyTypeBadge').textContent = p.type || '';
+
+  // Location
+  document.getElementById('listingLocation').textContent = [p.locality, p.city, p.state].filter(Boolean).join(', ');
+
+  // Price
+  document.getElementById('listingPrice').textContent = formatPriceINR(p.price);
+  const shortPrice = formatPriceShort(p.price);
+  const priceShortEl = document.getElementById('listingPriceShort');
+  if (shortPrice) {
+    priceShortEl.textContent = shortPrice;
+    priceShortEl.style.display = 'block';
+  } else {
+    priceShortEl.style.display = 'none';
+  }
+
+  // Stats
+  document.getElementById('statArea').textContent = p.area ? Number(p.area).toLocaleString('en-IN') : '--';
+  document.getElementById('statBedrooms').textContent = p.bedrooms || '0';
+  document.getElementById('statBathrooms').textContent = p.bathrooms || '0';
+  document.getElementById('statViews').textContent = (p.views || 0) + 1;
+
+  // Hide bedrooms/bathrooms for plots
+  if (p.type === 'Plot') {
+    document.getElementById('statBedroomsWrapper').style.display = 'none';
+    document.getElementById('statBathroomsWrapper').style.display = 'none';
+  }
+
+  // Description
+  document.getElementById('listingDescription').textContent = p.description || 'No description provided.';
+
+  // Details
+  document.getElementById('detailAddress').textContent = p.address || '--';
+  document.getElementById('detailLocality').textContent = p.locality || '--';
+  document.getElementById('detailCity').textContent = p.city || '--';
+  document.getElementById('detailState').textContent = p.state || '--';
+  document.getElementById('detailPostedAt').textContent = p.postedAt?.toDate
+    ? p.postedAt.toDate().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
+    : '--';
+
+  // Amenities
+  if (p.amenities && p.amenities.length > 0) {
+    document.getElementById('amenitiesSection').style.display = 'block';
+    const list = document.getElementById('amenitiesList');
+    list.innerHTML = p.amenities.map(a => `<span class="amenity-tag">${escapeHtml(a)}</span>`).join('');
+  }
+
+  // Brokerage
+  document.getElementById('brokeragePercent').textContent = p.brokeragePercent != null ? p.brokeragePercent : 2;
+
+  // Sold banner
+  if (p.status === 'sold') {
+    document.getElementById('soldBanner').style.display = 'flex';
+  }
+
+  // Contact info
+  document.getElementById('sellerName').textContent = p.postedBy || '--';
+  document.getElementById('sellerEmail').textContent = p.postedByEmail || '--';
+  document.getElementById('sellerPhone').textContent = p.postedByPhone || '--';
+  const sellerPhoto = document.getElementById('sellerPhoto');
+  if (p.postedByPhotoURL) {
+    sellerPhoto.src = p.postedByPhotoURL;
+    sellerPhoto.style.display = 'block';
+  } else {
+    sellerPhoto.style.display = 'none';
+  }
+  updateContactVisibility();
+
+  // Gallery
+  setupGallery(p.images || []);
+}
+
+// ---- Image Gallery ----
+function setupGallery(images) {
+  const mainImg = document.getElementById('galleryMainImg');
+  const thumbs = document.getElementById('galleryThumbs');
+  const prevBtn = document.getElementById('galleryPrev');
+  const nextBtn = document.getElementById('galleryNext');
+
+  if (images.length === 0) {
+    mainImg.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" fill="%23e5e7eb"><rect width="800" height="500"/><text x="400" y="260" text-anchor="middle" fill="%239ca3af" font-size="64">No Images</text></svg>';
+    prevBtn.style.display = 'none';
+    nextBtn.style.display = 'none';
+    return;
+  }
+
+  mainImg.src = images[0];
+  currentImageIndex = 0;
+
+  if (images.length <= 1) {
+    prevBtn.style.display = 'none';
+    nextBtn.style.display = 'none';
+  }
+
+  // Thumbnails
+  thumbs.innerHTML = '';
+  images.forEach((src, i) => {
+    const thumb = document.createElement('img');
+    thumb.src = src;
+    thumb.alt = `Image ${i + 1}`;
+    thumb.className = i === 0 ? 'thumb active' : 'thumb';
+    thumb.addEventListener('click', () => {
+      currentImageIndex = i;
+      mainImg.src = images[i];
+      thumbs.querySelectorAll('.thumb').forEach((t, j) => t.classList.toggle('active', j === i));
+    });
+    thumbs.appendChild(thumb);
+  });
+
+  prevBtn.addEventListener('click', () => {
+    currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+    mainImg.src = images[currentImageIndex];
+    thumbs.querySelectorAll('.thumb').forEach((t, j) => t.classList.toggle('active', j === currentImageIndex));
+  });
+
+  nextBtn.addEventListener('click', () => {
+    currentImageIndex = (currentImageIndex + 1) % images.length;
+    mainImg.src = images[currentImageIndex];
+    thumbs.querySelectorAll('.thumb').forEach((t, j) => t.classList.toggle('active', j === currentImageIndex));
+  });
+}
+
+// ---- Utility ----
+function escapeHtml(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// ---- Init ----
+loadProperty();

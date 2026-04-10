@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Post Property - Meena Real Estate Agency</title>
+  <link rel="stylesheet" href="styles.css?v=1">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
+</head>
+<body>
+
+  <!-- Sign-In Wall -->
+  <div id="signInWall" class="signin-wall" style="display:flex; position:fixed; inset:0; z-index:9999; background:#f9fafb; align-items:center; justify-content:center;">
+    <div class="signin-card">
+      <span class="signin-logo">🏠</span>
+      <h1>Meena Real Estate</h1>
+      <p class="subtitle">Sign in to post your property listing</p>
+      <button class="google-btn" id="wallSignInBtn">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google">
+        Continue with Google
+      </button>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <header class="header">
+    <div class="header-content">
+      <a href="index.html" class="header-brand">
+        <span class="header-logo">🏠</span>
+        <div>
+          <div class="header-title">Meena Real Estate</div>
+          <div class="header-subtitle">Find your dream property</div>
+        </div>
+      </a>
+      <nav class="header-nav">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="post.html" class="nav-link active">Post Property</a>
+        <a href="my-listings.html" class="nav-link">My Listings</a>
+        <a href="admin.html" class="nav-link" id="adminLink" style="display:none;">Admin</a>
+      </nav>
+      <div class="header-actions">
+        <div id="signedInView" style="display:none;" class="profile-menu-wrapper">
+          <img id="userAvatar" src="" alt="" class="profile-avatar">
+          <div id="profileDropdown" class="profile-dropdown" style="display:none;">
+            <div class="profile-dropdown-header">
+              <img id="userAvatarLarge" src="" alt="" class="profile-avatar-large">
+              <div>
+                <div class="profile-dropdown-name" id="userName"></div>
+                <div class="profile-dropdown-email" id="userEmail"></div>
+              </div>
+            </div>
+            <hr class="profile-dropdown-divider">
+            <button class="profile-dropdown-signout" id="signOutLink">Sign out</button>
+          </div>
+        </div>
+        <div id="signedOutView" style="display:none;"></div>
+      </div>
+      <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="mobile-nav" id="mobileNav" style="display:none;">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="post.html" class="nav-link active">Post Property</a>
+    <a href="my-listings.html" class="nav-link">My Listings</a>
+    <a href="admin.html" class="nav-link" id="adminLinkMobile" style="display:none;">Admin</a>
+  </div>
+
+  <div class="container">
+    <div class="page-header">
+      <h2>Post Your Property</h2>
+      <p>Fill in the details below to list your property on Meena Real Estate Agency</p>
+    </div>
+
+    <!-- Post Form -->
+    <div id="postFormSection" class="form-card">
+      <form id="postForm">
+        <!-- Basic Info -->
+        <div class="form-section">
+          <h3>Basic Information</h3>
+          <div class="form-group">
+            <label for="propTitle">Property Title *</label>
+            <input type="text" id="propTitle" placeholder="e.g. 3BHK Apartment in Andheri West" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="propType">Property Type *</label>
+              <select id="propType" required>
+                <option value="">Select Type</option>
+                <option value="Apartment">Apartment</option>
+                <option value="House/Villa">House/Villa</option>
+                <option value="Plot">Plot</option>
+                <option value="Commercial">Commercial</option>
+                <option value="PG/Hostel">PG/Hostel</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="propListingType">Listing Type *</label>
+              <select id="propListingType" required>
+                <option value="">Select</option>
+                <option value="Sale">For Sale</option>
+                <option value="Rent">For Rent</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="propPrice">Price (INR) *</label>
+              <input type="number" id="propPrice" placeholder="e.g. 4500000" required min="0">
+            </div>
+            <div class="form-group">
+              <label for="propArea">Area (sq ft) *</label>
+              <input type="number" id="propArea" placeholder="e.g. 1200" required min="0">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="propBedrooms">Bedrooms</label>
+              <input type="number" id="propBedrooms" placeholder="0" min="0" value="0">
+            </div>
+            <div class="form-group">
+              <label for="propBathrooms">Bathrooms</label>
+              <input type="number" id="propBathrooms" placeholder="0" min="0" value="0">
+            </div>
+          </div>
+        </div>
+
+        <!-- Location -->
+        <div class="form-section">
+          <h3>Location</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="propCity">City *</label>
+              <input type="text" id="propCity" placeholder="e.g. Mumbai" required>
+            </div>
+            <div class="form-group">
+              <label for="propLocality">Locality *</label>
+              <input type="text" id="propLocality" placeholder="e.g. Andheri West" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="propState">State *</label>
+            <input type="text" id="propState" placeholder="e.g. Maharashtra" required>
+          </div>
+          <div class="form-group">
+            <label for="propAddress">Full Address *</label>
+            <textarea id="propAddress" placeholder="Full address of the property" required rows="2"></textarea>
+          </div>
+        </div>
+
+        <!-- Description & Amenities -->
+        <div class="form-section">
+          <h3>Description & Amenities</h3>
+          <div class="form-group">
+            <label for="propDescription">Description *</label>
+            <textarea id="propDescription" placeholder="Describe your property - features, condition, nearby landmarks..." required rows="4"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Amenities</label>
+            <div class="amenities-checkbox-grid" id="amenitiesGrid">
+              <label class="checkbox-label"><input type="checkbox" value="Parking"> Parking</label>
+              <label class="checkbox-label"><input type="checkbox" value="Lift"> Lift</label>
+              <label class="checkbox-label"><input type="checkbox" value="Garden"> Garden</label>
+              <label class="checkbox-label"><input type="checkbox" value="Gym"> Gym</label>
+              <label class="checkbox-label"><input type="checkbox" value="Swimming Pool"> Swimming Pool</label>
+              <label class="checkbox-label"><input type="checkbox" value="Power Backup"> Power Backup</label>
+              <label class="checkbox-label"><input type="checkbox" value="Security"> Security</label>
+              <label class="checkbox-label"><input type="checkbox" value="Club House"> Club House</label>
+              <label class="checkbox-label"><input type="checkbox" value="Children Play Area"> Play Area</label>
+              <label class="checkbox-label"><input type="checkbox" value="Balcony"> Balcony</label>
+              <label class="checkbox-label"><input type="checkbox" value="Furnished"> Furnished</label>
+              <label class="checkbox-label"><input type="checkbox" value="Vastu Compliant"> Vastu Compliant</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Images -->
+        <div class="form-section">
+          <h3>Property Images</h3>
+          <p class="form-hint">Upload up to 5 images (JPG, PNG, WebP). First image will be the cover photo.</p>
+          <div class="image-upload-area" id="imageUploadArea">
+            <input type="file" id="imageInput" accept="image/jpeg,image/png,image/webp" multiple hidden>
+            <div class="upload-placeholder" id="uploadPlaceholder">
+              <span class="upload-icon-large">📷</span>
+              <p>Click to add images or drag and drop</p>
+            </div>
+            <div class="image-previews" id="imagePreviews"></div>
+          </div>
+        </div>
+
+        <!-- Contact Info -->
+        <div class="form-section">
+          <h3>Contact Information</h3>
+          <div class="form-group">
+            <label for="propPhone">Phone Number *</label>
+            <input type="tel" id="propPhone" placeholder="e.g. 9876543210" required pattern="[0-9]{10}">
+            <span class="form-hint">10-digit mobile number for buyers to contact you</span>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="form-actions">
+          <button type="submit" class="btn-primary btn-submit" id="submitBtn">
+            Post Property
+          </button>
+        </div>
+      </form>
+
+      <!-- Submit Loading Overlay -->
+      <div class="loading-overlay" id="submitLoading" style="display:none;">
+        <div class="scan-spinner"></div>
+        <p>Uploading images and posting your property...</p>
+      </div>
+    </div>
+
+    <!-- Success State -->
+    <div id="successSection" style="display:none;" class="success-section">
+      <div class="success-icon">🎉</div>
+      <h2>Property Listed!</h2>
+      <p id="successMsg">Your property has been successfully posted on Meena Real Estate Agency.</p>
+      <div class="success-actions">
+        <a href="index.html" class="btn-primary" style="display:inline-flex;width:auto;">Browse Properties</a>
+        <button class="btn-outline" id="postAnotherBtn">Post Another Property</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand"><span>🏠</span> Meena Real Estate Agency</div>
+      <div class="footer-info">
+        <p>Standard brokerage of 2% applies on successful property transactions facilitated by Meena Real Estate Agency.</p>
+        <p class="footer-copy">&copy; 2026 Meena Real Estate Agency. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="config.js"></script>
+  <script type="module" src="post.js?v=1"></script>
+
+</body>
+</html>
