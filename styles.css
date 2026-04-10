@@ -171,15 +171,16 @@ img { max-width: 100%; display: block; }
 }
 
 .header-logo {
-  font-size: 24px;
+  font-size: 28px;
   line-height: 1;
 }
 
 .header-title {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 17px;
+  font-weight: 800;
   color: var(--primary);
   white-space: nowrap;
+  letter-spacing: -0.3px;
 }
 
 .header-subtitle {
@@ -233,6 +234,16 @@ img { max-width: 100%; display: block; }
   font-family: inherit;
 }
 .btn-post-property:hover { background: #008f5a; }
+.free-badge {
+  background: #ffd700;
+  color: #1a1a1a;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 3px;
+  letter-spacing: 0.5px;
+  margin-left: 2px;
+}
 
 .btn-signin {
   padding: 7px 18px;
@@ -334,7 +345,8 @@ img { max-width: 100%; display: block; }
   background: none;
   border: none;
   cursor: pointer;
-  margin-left: auto;
+  margin-left: 4px;
+  flex-shrink: 0;
 }
 .mobile-menu-btn span {
   display: block;
@@ -367,9 +379,20 @@ img { max-width: 100%; display: block; }
 }
 
 @media (max-width: 768px) {
+  .header { height: 52px; }
+  .header-content { padding: 0 12px; }
   .header-nav { display: none; }
   .mobile-menu-btn { display: flex; }
-  .header-actions .btn-post-property { display: none; }
+  .header-logo { font-size: 26px; }
+  .header-title { font-size: 15px; }
+  /* Show compact post button, hide signin (it's in bottom nav) */
+  .header-actions .btn-post-property {
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .header-actions .btn-signin { display: none; }
+  .header-actions .profile-menu-wrapper .profile-avatar { width: 30px; height: 30px; }
 }
 
 /* ============================================
