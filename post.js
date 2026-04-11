@@ -99,8 +99,8 @@ function handleImageFiles(fileList) {
   }
 
   files.forEach(file => {
-    if (file.size > 10 * 1024 * 1024) {
-      showToast(`${file.name} is too large (max 10MB).`, 'error');
+    if (file.size > 20 * 1024 * 1024) {
+      showToast(`${file.name} is too large (max 20MB).`, 'error');
       return;
     }
     selectedFiles.push(file);
@@ -169,8 +169,8 @@ brochureUpload.addEventListener('change', (e) => {
     brochureUpload.value = '';
     return;
   }
-  if (file.size > 10 * 1024 * 1024) {
-    showToast('Brochure file is too large (max 10MB).', 'error');
+  if (file.size > 20 * 1024 * 1024) {
+    showToast('Brochure file is too large (max 20MB).', 'error');
     brochureUpload.value = '';
     return;
   }
