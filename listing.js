@@ -165,8 +165,26 @@ function renderProperty() {
     list.innerHTML = p.amenities.map(a => `<span class="amenity-tag">${escapeHtml(a)}</span>`).join('');
   }
 
-  // Brokerage
-  document.getElementById('brokeragePercent').textContent = p.brokeragePercent != null ? p.brokeragePercent : 1;
+  // Construction Status
+  const constructionStatusEl = document.getElementById('constructionStatus');
+  if (constructionStatusEl && p.constructionStatus) {
+    constructionStatusEl.textContent = p.constructionStatus;
+    if (p.constructionStatus === 'Under Construction') {
+      constructionStatusEl.classList.add('status-uc');
+    }
+  }
+
+  // Brokerage - zero for under construction
+  const brokerageEl = document.getElementById('brokerageNotice');
+  if (brokerageEl) {
+    if (p.constructionStatus === 'Under Construction') {
+      brokerageEl.innerHTML = '<strong>Zero Brokerage</strong> — No brokerage on under-construction properties.';
+      brokerageEl.classList.add('brokerage-zero');
+    } else {
+      const pct = p.brokeragePercent != null ? p.brokeragePercent : 1;
+      brokerageEl.innerHTML = `Brokerage: <strong>${pct}%</strong> on successful sale via Meena Estate Agency.`;
+    }
+  }
 
   // Sold banner
   if (p.status === 'sold') {

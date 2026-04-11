@@ -760,6 +760,23 @@ img { max-width: 100%; display: block; }
   color: white;
 }
 
+.badge-uc {
+  background: #8b5cf6;
+  color: white;
+  top: 38px;
+}
+
+.status-uc {
+  color: #8b5cf6;
+  font-weight: 600;
+}
+
+.brokerage-zero {
+  background: var(--green-light) !important;
+  border-color: var(--green) !important;
+  color: var(--green) !important;
+}
+
 .card-featured {
   position: absolute;
   top: 10px;

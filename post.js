@@ -210,6 +210,7 @@ postForm.addEventListener('submit', async (e) => {
   const state = document.getElementById('propState').value.trim();
   const address = document.getElementById('propAddress').value.trim();
   const description = document.getElementById('propDescription').value.trim();
+  const constructionStatus = document.getElementById('propConstructionStatus').value;
   const phone = document.getElementById('propPhone').value.trim();
 
   // Validation
@@ -273,6 +274,7 @@ postForm.addEventListener('submit', async (e) => {
       address,
       description,
       amenities,
+      constructionStatus,
       images: imageUrls,
       postedBy: posterName,
       postedByPhone: posterPhone,

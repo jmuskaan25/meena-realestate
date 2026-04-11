@@ -228,6 +228,7 @@ function renderMore() {
       <div class="card-image">
         <img src="${escapeHtml(imgSrc)}" alt="${escapeHtml(p.title)}" loading="lazy">
         <span class="card-badge ${listingBadgeClass}">${escapeHtml(p.listingType || 'Sale')}</span>
+        ${p.constructionStatus === 'Under Construction' ? '<span class="card-badge badge-uc">Under Construction</span>' : ''}
         ${p.featured ? '<span class="card-featured">Featured</span>' : ''}
       </div>
       <div class="card-content">
