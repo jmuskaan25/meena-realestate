@@ -3,24 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Post Property - Meena Real Estate</title>
+  <title>Post Property - Meena Estate Agency</title>
   <link rel="stylesheet" href="styles.css?v=2">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
+  <link rel="icon" type="image/png" href="logo.png">
 </head>
 <body>
-
-  <!-- Sign-In Wall -->
-  <div id="signInWall" class="signin-wall" style="display:flex; position:fixed; inset:0; z-index:9999; background:var(--bg-gray, #f5f5f5); align-items:center; justify-content:center;">
-    <div class="signin-card">
-      <span class="signin-logo">🏠</span>
-      <h1>Meena Real Estate</h1>
-      <p class="subtitle">Sign in to post your property listing</p>
-      <button class="google-btn" id="wallSignInBtn">
-        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google">
-        Continue with Google
-      </button>
-    </div>
-  </div>
 
   <!-- Top Navigation -->
   <header class="header">
@@ -29,10 +16,7 @@
         <span></span><span></span><span></span>
       </button>
       <a href="index.html" class="header-brand">
-        <span class="header-logo">🏠</span>
-        <div>
-          <div class="header-title">Meena Real Estate</div>
-        </div>
+        <img src="logo.png" alt="Meena Estate Agency" class="header-logo-img">
       </a>
       <nav class="header-nav">
         <a href="index.html" class="nav-link">Home</a>
@@ -70,12 +54,31 @@
   <div class="container">
     <div class="page-header">
       <h2>Post Your Property</h2>
-      <p>Fill in the details below to list your property on Meena Real Estate</p>
+      <p>Fill in the details below to list your property on Meena Estate Agency</p>
     </div>
 
     <!-- Post Form -->
     <div id="postFormSection" class="form-card">
       <form id="postForm">
+        <!-- Your Details -->
+        <div class="form-section">
+          <h3>Your Details</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="posterName">Your Name *</label>
+              <input type="text" id="posterName" placeholder="Full name" required>
+            </div>
+            <div class="form-group">
+              <label for="posterPhone">Phone Number *</label>
+              <input type="tel" id="posterPhone" placeholder="+91 9876543210" required>
+            </div>
+            <div class="form-group">
+              <label for="posterEmail">Email ID *</label>
+              <input type="email" id="posterEmail" placeholder="your@email.com" required>
+            </div>
+          </div>
+        </div>
+
         <!-- Basic Info -->
         <div class="form-section">
           <h3>Basic Information</h3>
@@ -199,6 +202,19 @@
           </div>
         </div>
 
+        <!-- Brochure Upload -->
+        <div class="form-section">
+          <h3>Brochure (Optional)</h3>
+          <div class="form-group">
+            <label for="brochureUpload">Upload property brochure (PDF only, max 10MB)</label>
+            <input type="file" id="brochureUpload" accept=".pdf" class="file-input">
+            <div id="brochurePreview" class="brochure-preview" style="display:none;">
+              <span class="brochure-name" id="brochureName"></span>
+              <button type="button" class="brochure-remove" id="brochureRemove">&#x2715;</button>
+            </div>
+          </div>
+        </div>
+
         <!-- Submit -->
         <div class="form-actions">
           <button type="submit" class="btn-primary btn-submit" id="submitBtn">
@@ -218,7 +234,7 @@
     <div id="successSection" style="display:none;" class="success-section">
       <div class="success-icon">🎉</div>
       <h2>Property Listed!</h2>
-      <p id="successMsg">Your property has been successfully posted on Meena Real Estate.</p>
+      <p id="successMsg">Your property has been successfully posted on Meena Estate Agency.</p>
       <div class="success-actions">
         <a href="index.html" class="btn-primary" style="display:inline-flex;width:auto;">Browse Properties</a>
         <button class="btn-outline" id="postAnotherBtn">Post Another Property</button>
@@ -228,10 +244,10 @@
 
   <footer class="footer">
     <div class="footer-inner">
-      <div class="footer-brand"><span>🏠</span> Meena Real Estate Agency</div>
+      <div class="footer-brand"><span>🏠</span> Meena Estate Agency</div>
       <div class="footer-info">
-        <p>Standard brokerage of 2% applies on successful property transactions facilitated by Meena Real Estate Agency.</p>
-        <p class="footer-copy">&copy; 2026 Meena Real Estate Agency. All rights reserved.</p>
+        <p>Standard brokerage of 1% applies on successful property transactions. No brokerage on under-construction properties.</p>
+        <p class="footer-copy">&copy; 2026 Meena Estate Agency. All rights reserved.</p>
       </div>
     </div>
   </footer>

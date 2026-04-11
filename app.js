@@ -1,5 +1,5 @@
 // ============================================
-// Meena Real Estate - Homepage Logic
+// Meena Estate Agency - Homepage Logic
 // ============================================
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';

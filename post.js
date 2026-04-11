@@ -1,31 +1,30 @@
 // ============================================
-// Meena Real Estate - Post Property Page
+// Meena Estate Agency - Post Property Page
 // ============================================
+// NOTE: This form does NOT require Google sign-in.
+// Firestore security rules must allow unauthenticated writes
+// to the 'properties' collection for this to work.
+// Firebase Storage rules must also allow unauthenticated uploads
+// to the 'properties/' and 'brochures/' paths.
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
-import { getAuth, signInWithPopup, signOut, onAuthStateChanged, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 // ---- Firebase Init ----
 let db = null;
 let storage = null;
-let auth = null;
-let currentUser = null;
 
 try {
   const app = initializeApp(CONFIG.FIREBASE);
   db = getFirestore(app);
   storage = getStorage(app);
-  auth = getAuth(app);
 } catch (e) {
   console.warn('Firebase not configured yet.', e);
 }
 
 // ---- DOM Refs ----
 const toastContainer = document.getElementById('toastContainer');
-const signInWall = document.getElementById('signInWall');
-const wallSignInBtn = document.getElementById('wallSignInBtn');
 const postForm = document.getElementById('postForm');
 const postFormSection = document.getElementById('postFormSection');
 const successSection = document.getElementById('successSection');
@@ -36,99 +35,23 @@ const imageUploadArea = document.getElementById('imageUploadArea');
 const uploadPlaceholder = document.getElementById('uploadPlaceholder');
 const imagePreviews = document.getElementById('imagePreviews');
 
-// Auth refs
-const signedInView = document.getElementById('signedInView');
-const signedOutView = document.getElementById('signedOutView');
-const userAvatar = document.getElementById('userAvatar');
-const userName = document.getElementById('userName');
-const userEmail = document.getElementById('userEmail');
-const signOutLink = document.getElementById('signOutLink');
+// Brochure refs
+const brochureUpload = document.getElementById('brochureUpload');
+const brochurePreview = document.getElementById('brochurePreview');
+const brochureName = document.getElementById('brochureName');
+const brochureRemove = document.getElementById('brochureRemove');
 
 // ---- State ----
 let selectedFiles = [];
+let selectedBrochure = null;
 const MAX_IMAGES = 5;
 
-// ---- Auth ----
-if (sessionStorage.getItem('via_authed') === '1' && signInWall) {
-  signInWall.style.display = 'none';
-}
+// ---- Admin link from session ----
 if (sessionStorage.getItem('via_admin') === '1') {
   const adminLink = document.getElementById('adminLink');
   const adminLinkMobile = document.getElementById('adminLinkMobile');
   if (adminLink) adminLink.style.display = 'inline-flex';
   if (adminLinkMobile) adminLinkMobile.style.display = 'block';
-}
-
-if (auth) {
-  onAuthStateChanged(auth, (user) => {
-    currentUser = user;
-    if (user) {
-      sessionStorage.setItem('via_authed', '1');
-      if (signInWall) signInWall.style.display = 'none';
-      if (signedOutView) signedOutView.style.display = 'none';
-      signedInView.style.display = 'flex';
-      userAvatar.src = user.photoURL || '';
-      const userAvatarLarge = document.getElementById('userAvatarLarge');
-      if (userAvatarLarge) userAvatarLarge.src = user.photoURL || '';
-      userName.textContent = user.displayName || 'User';
-      if (userEmail) userEmail.textContent = user.email || '';
-    } else {
-      sessionStorage.removeItem('via_authed');
-      if (signInWall) signInWall.style.display = 'flex';
-      if (signedOutView) signedOutView.style.display = 'block';
-      signedInView.style.display = 'none';
-    }
-  });
-}
-
-// Wall sign-in
-wallSignInBtn.addEventListener('click', async () => {
-  if (!auth) { showToast('Firebase not initialized.', 'error'); return; }
-  wallSignInBtn.disabled = true;
-  wallSignInBtn.textContent = 'Signing in...';
-  try {
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
-    const result = await signInWithPopup(auth, provider);
-    if (result.user) {
-      sessionStorage.setItem('via_authed', '1');
-      if (signInWall) signInWall.style.display = 'none';
-    }
-  } catch (err) {
-    wallSignInBtn.disabled = false;
-    wallSignInBtn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google"> Continue with Google';
-    if (err.code !== 'auth/popup-closed-by-user') {
-      showToast(`Sign-in failed: ${err.message}`, 'error');
-    }
-  }
-});
-
-// Sign out
-if (signOutLink) {
-  signOutLink.addEventListener('click', async () => {
-    if (!auth) return;
-    try {
-      sessionStorage.removeItem('via_admin');
-      await signOut(auth);
-      showToast('Signed out.', 'info');
-    } catch (err) {
-      console.error('Sign-out error:', err);
-    }
-  });
-}
-
-// Profile dropdown
-const profileDropdown = document.getElementById('profileDropdown');
-if (userAvatar) {
-  userAvatar.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (!profileDropdown) return;
-    profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
-  });
-}
-if (profileDropdown) {
-  document.addEventListener('click', () => { profileDropdown.style.display = 'none'; });
-  profileDropdown.addEventListener('click', (e) => e.stopPropagation());
 }
 
 // Mobile menu
@@ -245,6 +168,32 @@ function renderImagePreviews() {
   }
 }
 
+// ---- Brochure Upload ----
+brochureUpload.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.type !== 'application/pdf') {
+    showToast('Only PDF files are allowed for brochure.', 'error');
+    brochureUpload.value = '';
+    return;
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    showToast('Brochure file is too large (max 10MB).', 'error');
+    brochureUpload.value = '';
+    return;
+  }
+  selectedBrochure = file;
+  brochureName.textContent = file.name;
+  brochurePreview.style.display = 'flex';
+});
+
+brochureRemove.addEventListener('click', () => {
+  selectedBrochure = null;
+  brochureUpload.value = '';
+  brochurePreview.style.display = 'none';
+  brochureName.textContent = '';
+});
+
 // ---- Form Submit ----
 postForm.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -254,11 +203,9 @@ postForm.addEventListener('submit', async (e) => {
     return;
   }
 
-  if (!currentUser) {
-    showToast('Please sign in first.', 'error');
-    return;
-  }
-
+  const posterName = document.getElementById('posterName').value.trim();
+  const posterPhone = document.getElementById('posterPhone').value.trim();
+  const posterEmail = document.getElementById('posterEmail').value.trim();
   const title = document.getElementById('propTitle').value.trim();
   const type = document.getElementById('propType').value;
   const listingType = document.getElementById('propListingType').value;
@@ -274,6 +221,11 @@ postForm.addEventListener('submit', async (e) => {
   const phone = document.getElementById('propPhone').value.trim();
 
   // Validation
+  if (!posterName || !posterPhone || !posterEmail) {
+    showToast('Please fill in your name, phone, and email.', 'error');
+    return;
+  }
+
   if (!title || !type || !listingType || !price || !area || !city || !locality || !state || !address || !description || !phone) {
     showToast('Please fill in all required fields.', 'error');
     return;
@@ -305,6 +257,15 @@ postForm.addEventListener('submit', async (e) => {
       imageUrls.push(url);
     }
 
+    // Upload brochure if selected
+    let brochureUrl = null;
+    if (selectedBrochure) {
+      const timestamp = Date.now();
+      const brochureRef = ref(storage, `brochures/${timestamp}_${selectedBrochure.name}`);
+      await uploadBytes(brochureRef, selectedBrochure);
+      brochureUrl = await getDownloadURL(brochureRef);
+    }
+
     // Save to Firestore
     const docData = {
       title,
@@ -321,16 +282,19 @@ postForm.addEventListener('submit', async (e) => {
       description,
       amenities,
       images: imageUrls,
-      postedBy: currentUser.displayName || 'Anonymous',
-      postedByEmail: currentUser.email || '',
-      postedByPhone: phone,
-      postedByPhotoURL: currentUser.photoURL || '',
+      postedBy: posterName,
+      postedByPhone: posterPhone,
+      postedByEmail: posterEmail,
       postedAt: serverTimestamp(),
       status: 'active',
       featured: false,
-      brokeragePercent: 2,
+      brokeragePercent: 1,
       views: 0
     };
+
+    if (brochureUrl) {
+      docData.brochureUrl = brochureUrl;
+    }
 
     await addDoc(collection(db, 'properties'), docData);
 
@@ -354,5 +318,8 @@ document.getElementById('postAnotherBtn').addEventListener('click', () => {
   postFormSection.style.display = 'block';
   postForm.reset();
   selectedFiles = [];
+  selectedBrochure = null;
+  brochurePreview.style.display = 'none';
+  brochureName.textContent = '';
   renderImagePreviews();
 });

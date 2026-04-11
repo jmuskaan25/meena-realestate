@@ -1,5 +1,5 @@
 // ============================================
-// Meena Real Estate - Admin Panel
+// Meena Estate Agency - Admin Panel
 // ============================================
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
@@ -242,7 +242,7 @@ async function loadAllListings() {
           </label>
         </td>
         <td>
-          <input type="number" class="brokerage-input" data-doc-id="${escapeHtml(d.id)}" value="${d.brokeragePercent != null ? d.brokeragePercent : 2}" min="0" max="100" step="0.5">
+          <input type="number" class="brokerage-input" data-doc-id="${escapeHtml(d.id)}" value="${d.brokeragePercent != null ? d.brokeragePercent : 1}" min="0" max="100" step="0.5">
         </td>
         <td>
           <button class="btn-small btn-delete-admin" data-doc-id="${escapeHtml(d.id)}">Delete</button>

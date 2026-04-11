@@ -1,5 +1,5 @@
 // ============================================
-// Meena Real Estate - Listing Detail Page
+// Meena Estate Agency - Listing Detail Page
 // ============================================
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
@@ -232,7 +232,7 @@ function renderProperty() {
   listingDetail.style.display = 'block';
 
   // Title
-  document.title = `${p.title} - Meena Real Estate Agency`;
+  document.title = `${p.title} - Meena Estate Agency`;
   document.getElementById('listingTitle').textContent = p.title || 'Untitled Property';
 
   // Badges
@@ -287,7 +287,7 @@ function renderProperty() {
   }
 
   // Brokerage
-  document.getElementById('brokeragePercent').textContent = p.brokeragePercent != null ? p.brokeragePercent : 2;
+  document.getElementById('brokeragePercent').textContent = p.brokeragePercent != null ? p.brokeragePercent : 1;
 
   // Sold banner
   if (p.status === 'sold') {
