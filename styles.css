@@ -2000,6 +2000,21 @@ img { max-width: 100%; display: block; }
   margin-top: 8px;
 }
 .brochure-name { font-size: 13px; color: var(--text); flex: 1; }
+.brochure-download {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--red);
+  color: white;
+  border-radius: var(--radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  transition: opacity 0.2s;
+}
+.brochure-download:hover { opacity: 0.85; }
+.brochure-download svg { flex-shrink: 0; }
+
 .brochure-remove {
   background: none;
   border: none;

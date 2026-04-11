@@ -165,6 +165,12 @@ function renderProperty() {
     list.innerHTML = p.amenities.map(a => `<span class="amenity-tag">${escapeHtml(a)}</span>`).join('');
   }
 
+  // Brochure
+  if (p.brochureUrl) {
+    document.getElementById('brochureSection').style.display = 'block';
+    document.getElementById('brochureLink').href = p.brochureUrl;
+  }
+
   // Construction Status
   const constructionStatusEl = document.getElementById('constructionStatus');
   if (constructionStatusEl && p.constructionStatus) {
