@@ -129,7 +129,7 @@ function renderProperty() {
   const priceShortEl = document.getElementById('listingPriceShort');
   if (shortPrice) {
     priceShortEl.textContent = shortPrice;
-    priceShortEl.style.display = 'block';
+    priceShortEl.style.display = 'inline';
   } else {
     priceShortEl.style.display = 'none';
   }

@@ -1273,12 +1273,14 @@ img { max-width: 100%; display: block; }
   font-size: 24px;
   font-weight: 700;
   color: var(--text-dark);
+  display: inline;
 }
 
 .listing-price-short {
   font-size: 14px;
   font-weight: 600;
   color: var(--primary);
+  margin-left: 8px;
 }
 
 /* Stats Row */
@@ -1353,6 +1355,7 @@ img { max-width: 100%; display: block; }
   font-size: 14px;
   font-weight: 500;
   color: var(--text-dark);
+  text-align: right;
 }
 
 /* Amenities */
