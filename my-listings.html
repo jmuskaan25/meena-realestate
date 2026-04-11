@@ -9,19 +9,6 @@
 </head>
 <body>
 
-  <!-- Sign-In Wall -->
-  <div id="signInWall" class="signin-wall" style="display:flex; position:fixed; inset:0; z-index:9999; background:var(--bg-gray, #f5f5f5); align-items:center; justify-content:center;">
-    <div class="signin-card">
-      <span class="signin-logo">🏠</span>
-      <h1>Meena Estate Agency</h1>
-      <p class="subtitle">Sign in to manage your property listings</p>
-      <button class="google-btn" id="wallSignInBtn">
-        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google">
-        Continue with Google
-      </button>
-    </div>
-  </div>
-
   <!-- Top Navigation -->
   <header class="header">
     <div class="header-content">
@@ -39,21 +26,6 @@
       </nav>
       <div class="header-actions">
         <a href="post.html" class="btn-post-property">Post Property <span class="free-badge">FREE</span></a>
-        <div id="signedInView" style="display:none;" class="profile-menu-wrapper">
-          <img id="userAvatar" src="" alt="" class="profile-avatar">
-          <div id="profileDropdown" class="profile-dropdown" style="display:none;">
-            <div class="profile-dropdown-header">
-              <img id="userAvatarLarge" src="" alt="" class="profile-avatar-large">
-              <div>
-                <div class="profile-dropdown-name" id="userName"></div>
-                <div class="profile-dropdown-email" id="userEmail"></div>
-              </div>
-            </div>
-            <hr class="profile-dropdown-divider">
-            <button class="profile-dropdown-signout" id="signOutLink">Sign out</button>
-          </div>
-        </div>
-        <div id="signedOutView" style="display:none;"></div>
       </div>
     </div>
   </header>
@@ -68,15 +40,15 @@
   <div class="container">
     <div class="page-header">
       <h2>My Listings</h2>
-      <p>Manage your posted properties</p>
+      <p>Enter your email to view and manage your posted properties</p>
+      <div style="margin-top:16px; display:flex; gap:8px; max-width:480px;">
+        <input type="email" id="emailLookupInput" placeholder="Enter your email address" style="flex:1; padding:10px 14px; border:1px solid #d1d5db; border-radius:8px; font-size:15px;">
+        <button class="btn-primary" id="emailLookupBtn" style="display:inline-flex;width:auto;white-space:nowrap;">Find My Listings</button>
+      </div>
       <a href="post.html" class="btn-primary" style="display:inline-flex;width:auto;margin-top:12px;">+ Post New Property</a>
     </div>
 
     <div id="myListingsContent">
-      <div class="listing-loading">
-        <div class="scan-spinner"></div>
-        <p>Loading your listings...</p>
-      </div>
     </div>
   </div>
 
@@ -103,10 +75,6 @@
     <a href="my-listings.html" class="bottom-nav-item active">
       <span class="bottom-nav-icon">📋</span>
       My Listings
-    </a>
-    <a href="#" class="bottom-nav-item">
-      <span class="bottom-nav-icon">👤</span>
-      Profile
     </a>
   </nav>
 

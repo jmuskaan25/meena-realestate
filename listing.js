@@ -4,19 +4,15 @@
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-import { getAuth, signInWithPopup, signOut, onAuthStateChanged, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-functions.js';
 
 // ---- Firebase Init ----
 let db = null;
-let auth = null;
 let functions = null;
-let currentUser = null;
 
 try {
   const app = initializeApp(CONFIG.FIREBASE);
   db = getFirestore(app);
-  auth = getAuth(app);
   functions = getFunctions(app);
 } catch (e) {
   console.warn('Firebase not configured yet.', e);
@@ -28,15 +24,6 @@ const listingNotFound = document.getElementById('listingNotFound');
 const listingDetail = document.getElementById('listingDetail');
 const toastContainer = document.getElementById('toastContainer');
 
-// Auth refs
-const signedInView = document.getElementById('signedInView');
-const signedOutView = document.getElementById('signedOutView');
-const userAvatar = document.getElementById('userAvatar');
-const userName = document.getElementById('userName');
-const userEmail = document.getElementById('userEmail');
-const signOutLink = document.getElementById('signOutLink');
-const headerSignInBtn = document.getElementById('headerSignInBtn');
-
 // ---- State ----
 let propertyData = null;
 let currentImageIndex = 0;
@@ -44,114 +31,6 @@ let currentImageIndex = 0;
 // ---- Get Property ID ----
 const params = new URLSearchParams(window.location.search);
 const propertyId = params.get('id');
-
-// ---- Auth ----
-if (sessionStorage.getItem('via_admin') === '1') {
-  const adminLink = document.getElementById('adminLink');
-  const adminLinkMobile = document.getElementById('adminLinkMobile');
-  if (adminLink) adminLink.style.display = 'inline-flex';
-  if (adminLinkMobile) adminLinkMobile.style.display = 'block';
-}
-
-if (auth) {
-  onAuthStateChanged(auth, (user) => {
-    currentUser = user;
-    if (user) {
-      sessionStorage.setItem('via_authed', '1');
-      signedOutView.style.display = 'none';
-      signedInView.style.display = 'flex';
-      userAvatar.src = user.photoURL || '';
-      const userAvatarLarge = document.getElementById('userAvatarLarge');
-      if (userAvatarLarge) userAvatarLarge.src = user.photoURL || '';
-      userName.textContent = user.displayName || 'User';
-      if (userEmail) userEmail.textContent = user.email || '';
-
-      // Show contact info if signed in and property loaded
-      updateContactVisibility();
-    } else {
-      sessionStorage.removeItem('via_authed');
-      signedOutView.style.display = 'block';
-      signedInView.style.display = 'none';
-      updateContactVisibility();
-    }
-  });
-}
-
-function updateContactVisibility() {
-  const contactHidden = document.getElementById('contactHidden');
-  const contactVisible = document.getElementById('contactVisible');
-  if (!contactHidden || !contactVisible) return;
-
-  if (currentUser && propertyData) {
-    contactHidden.style.display = 'none';
-    contactVisible.style.display = 'block';
-  } else {
-    contactHidden.style.display = 'block';
-    contactVisible.style.display = 'none';
-  }
-}
-
-// Header sign-in
-if (headerSignInBtn) {
-  headerSignInBtn.addEventListener('click', async () => {
-    if (!auth) { showToast('Firebase not initialized.', 'error'); return; }
-    try {
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
-      await signInWithPopup(auth, provider);
-    } catch (err) {
-      if (err.code !== 'auth/popup-closed-by-user') {
-        showToast(`Sign-in failed: ${err.message}`, 'error');
-      }
-    }
-  });
-}
-
-// Contact sign-in button
-const contactSignInBtn = document.getElementById('contactSignInBtn');
-if (contactSignInBtn) {
-  contactSignInBtn.addEventListener('click', async () => {
-    if (!auth) { showToast('Firebase not initialized.', 'error'); return; }
-    try {
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
-      await signInWithPopup(auth, provider);
-    } catch (err) {
-      if (err.code !== 'auth/popup-closed-by-user') {
-        showToast(`Sign-in failed: ${err.message}`, 'error');
-      }
-    }
-  });
-}
-
-// Sign out
-if (signOutLink) {
-  signOutLink.addEventListener('click', async () => {
-    if (!auth) return;
-    try {
-      sessionStorage.removeItem('via_admin');
-      await signOut(auth);
-      showToast('Signed out.', 'info');
-    } catch (err) {
-      console.error('Sign-out error:', err);
-    }
-  });
-}
-
-// Profile dropdown
-const profileDropdown = document.getElementById('profileDropdown');
-if (userAvatar) {
-  userAvatar.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (!profileDropdown) return;
-    const isOpen = profileDropdown.style.display === 'block';
-    profileDropdown.style.display = isOpen ? 'none' : 'block';
-  });
-}
-if (profileDropdown) {
-  document.addEventListener('click', () => { profileDropdown.style.display = 'none'; });
-  profileDropdown.addEventListener('click', (e) => e.stopPropagation());
-}
 
 // Mobile menu
 const mobileMenuBtn = document.getElementById('mobileMenuBtn');
@@ -294,7 +173,7 @@ function renderProperty() {
     document.getElementById('soldBanner').style.display = 'flex';
   }
 
-  // Contact info
+  // Contact info - always visible (no auth gate)
   document.getElementById('sellerName').textContent = p.postedBy || '--';
   document.getElementById('sellerEmail').textContent = p.postedByEmail || '--';
   document.getElementById('sellerPhone').textContent = p.postedByPhone || '--';
@@ -305,7 +184,6 @@ function renderProperty() {
   } else {
     sellerPhoto.style.display = 'none';
   }
-  updateContactVisibility();
 
   // Gallery
   setupGallery(p.images || []);

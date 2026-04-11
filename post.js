@@ -46,14 +46,6 @@ let selectedFiles = [];
 let selectedBrochure = null;
 const MAX_IMAGES = 5;
 
-// ---- Admin link from session ----
-if (sessionStorage.getItem('via_admin') === '1') {
-  const adminLink = document.getElementById('adminLink');
-  const adminLinkMobile = document.getElementById('adminLinkMobile');
-  if (adminLink) adminLink.style.display = 'inline-flex';
-  if (adminLinkMobile) adminLinkMobile.style.display = 'block';
-}
-
 // Mobile menu
 const mobileMenuBtn = document.getElementById('mobileMenuBtn');
 const mobileNav = document.getElementById('mobileNav');

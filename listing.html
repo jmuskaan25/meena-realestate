@@ -26,23 +26,6 @@
       </nav>
       <div class="header-actions">
         <a href="post.html" class="btn-post-property">Post Property <span class="free-badge">FREE</span></a>
-        <div id="signedInView" style="display:none;" class="profile-menu-wrapper">
-          <img id="userAvatar" src="" alt="" class="profile-avatar">
-          <div id="profileDropdown" class="profile-dropdown" style="display:none;">
-            <div class="profile-dropdown-header">
-              <img id="userAvatarLarge" src="" alt="" class="profile-avatar-large">
-              <div>
-                <div class="profile-dropdown-name" id="userName"></div>
-                <div class="profile-dropdown-email" id="userEmail"></div>
-              </div>
-            </div>
-            <hr class="profile-dropdown-divider">
-            <button class="profile-dropdown-signout" id="signOutLink">Sign out</button>
-          </div>
-        </div>
-        <div id="signedOutView">
-          <button class="btn-signin" id="headerSignInBtn">Sign In</button>
-        </div>
       </div>
     </div>
   </header>
@@ -158,14 +141,7 @@
         <!-- Contact Seller -->
         <div class="contact-section">
           <h3>Contact Seller</h3>
-          <div id="contactHidden">
-            <p class="contact-cta-text">Sign in with Google to view seller contact details</p>
-            <button class="btn-primary btn-contact" id="contactSignInBtn">
-              <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google">
-              Sign in to Contact Seller
-            </button>
-          </div>
-          <div id="contactVisible" style="display:none;">
+          <div id="contactVisible">
             <div class="seller-card">
               <img id="sellerPhoto" src="" alt="" class="seller-avatar">
               <div class="seller-info">
@@ -203,10 +179,6 @@
     <a href="my-listings.html" class="bottom-nav-item">
       <span class="bottom-nav-icon">📋</span>
       My Listings
-    </a>
-    <a href="#" class="bottom-nav-item" id="bottomNavSignIn">
-      <span class="bottom-nav-icon">👤</span>
-      Sign In
     </a>
   </nav>
 

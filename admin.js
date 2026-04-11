@@ -4,17 +4,13 @@
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-import { getAuth, signInWithPopup, signOut, onAuthStateChanged, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 // ---- Firebase Init ----
 let db = null;
-let auth = null;
-let currentUser = null;
 
 try {
   const app = initializeApp(CONFIG.FIREBASE);
   db = getFirestore(app);
-  auth = getAuth(app);
 } catch (e) {
   console.warn('Firebase not configured yet.', e);
 }
@@ -23,129 +19,31 @@ try {
 const adminBody = document.getElementById('adminBody');
 const toastContainer = document.getElementById('toastContainer');
 const signInWall = document.getElementById('signInWall');
-const wallSignInBtn = document.getElementById('wallSignInBtn');
-const adminToggleBtn = document.getElementById('adminToggleBtn');
-const adminPasswordField = document.getElementById('adminPasswordField');
 const adminPasswordInput = document.getElementById('adminPasswordInput');
+const adminLoginBtn = document.getElementById('adminLoginBtn');
 
-// Auth refs
-const signedInView = document.getElementById('signedInView');
-const signedOutView = document.getElementById('signedOutView');
-const userAvatar = document.getElementById('userAvatar');
-const userName = document.getElementById('userName');
-const userEmail = document.getElementById('userEmail');
-const signOutLink = document.getElementById('signOutLink');
-
-localStorage.removeItem('via_signing_in');
-
-// ---- Admin Toggle ----
-if (adminToggleBtn && adminPasswordField) {
-  adminToggleBtn.addEventListener('click', () => {
-    const isVisible = adminPasswordField.style.display !== 'none';
-    adminPasswordField.style.display = isVisible ? 'none' : 'block';
-    adminToggleBtn.textContent = isVisible ? 'Sign in as Admin' : 'Cancel admin login';
-  });
-}
-
-// Hide wall if already authed as admin
-if (sessionStorage.getItem('via_authed') === '1' && sessionStorage.getItem('via_admin') === '1' && signInWall) {
+// ---- Admin Password Gate ----
+// Hide wall if already authed as admin in this session
+if (sessionStorage.getItem('via_admin') === '1' && signInWall) {
   signInWall.style.display = 'none';
+  loadAllListings();
 }
 
-// ---- Auth ----
-if (auth) {
-  onAuthStateChanged(auth, (user) => {
-    if (user) {
-      currentUser = user;
-      if (sessionStorage.getItem('via_admin') === '1') {
-        sessionStorage.setItem('via_authed', '1');
-        if (signInWall) signInWall.style.display = 'none';
-        if (signedOutView) signedOutView.style.display = 'none';
-        signedInView.style.display = 'flex';
-        userAvatar.src = user.photoURL || '';
-        const userAvatarLarge = document.getElementById('userAvatarLarge');
-        if (userAvatarLarge) userAvatarLarge.src = user.photoURL || '';
-        userName.textContent = user.displayName || 'User';
-        if (userEmail) userEmail.textContent = user.email || '';
-        loadAllListings();
-      } else {
-        showToast('Admin access required.', 'error');
-        setTimeout(() => { window.location.href = 'index.html'; }, 1500);
-      }
-    } else {
-      sessionStorage.removeItem('via_authed');
-      if (signInWall) signInWall.style.display = 'flex';
-    }
-  });
-}
-
-// ---- Wall Sign-In ----
-wallSignInBtn.addEventListener('click', async () => {
-  if (!auth) { showToast('Firebase not initialized.', 'error'); return; }
-
-  wallSignInBtn.disabled = true;
-  wallSignInBtn.textContent = 'Signing in...';
-
-  const isAdminAttempt = adminPasswordField && adminPasswordField.style.display !== 'none';
-  if (!isAdminAttempt) {
-    showToast('Please use the admin login toggle below.', 'error');
-    wallSignInBtn.disabled = false;
-    wallSignInBtn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google"> Continue with Google';
-    return;
-  }
-
+adminLoginBtn.addEventListener('click', () => {
   if (!adminPasswordInput || adminPasswordInput.value !== 'admin') {
     showToast('Incorrect admin password.', 'error');
-    wallSignInBtn.disabled = false;
-    wallSignInBtn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google"> Continue with Google';
     return;
   }
-
-  try {
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
-    const result = await signInWithPopup(auth, provider);
-    if (result.user) {
-      sessionStorage.setItem('via_authed', '1');
-      sessionStorage.setItem('via_admin', '1');
-      if (signInWall) signInWall.style.display = 'none';
-    }
-  } catch (err) {
-    wallSignInBtn.disabled = false;
-    wallSignInBtn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google"> Continue with Google';
-    if (err.code !== 'auth/popup-closed-by-user') {
-      showToast(`Sign-in failed: ${err.message}`, 'error');
-    }
-  }
+  sessionStorage.setItem('via_admin', '1');
+  if (signInWall) signInWall.style.display = 'none';
+  loadAllListings();
 });
 
-// Sign out
-if (signOutLink) {
-  signOutLink.addEventListener('click', async () => {
-    if (!auth) return;
-    try {
-      sessionStorage.removeItem('via_admin');
-      await signOut(auth);
-      showToast('Signed out.', 'info');
-    } catch (err) {
-      console.error('Sign-out error:', err);
-    }
-  });
-}
-
-// Profile dropdown
-const profileDropdown = document.getElementById('profileDropdown');
-if (userAvatar) {
-  userAvatar.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (!profileDropdown) return;
-    profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
-  });
-}
-if (profileDropdown) {
-  document.addEventListener('click', () => { profileDropdown.style.display = 'none'; });
-  profileDropdown.addEventListener('click', (e) => e.stopPropagation());
-}
+adminPasswordInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    adminLoginBtn.click();
+  }
+});
 
 // Mobile menu
 const mobileMenuBtn = document.getElementById('mobileMenuBtn');

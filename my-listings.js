@@ -4,120 +4,22 @@
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-import { getAuth, signInWithPopup, signOut, onAuthStateChanged, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 // ---- Firebase Init ----
 let db = null;
-let auth = null;
-let currentUser = null;
 
 try {
   const app = initializeApp(CONFIG.FIREBASE);
   db = getFirestore(app);
-  auth = getAuth(app);
 } catch (e) {
   console.warn('Firebase not configured yet.', e);
 }
 
 // ---- DOM Refs ----
 const toastContainer = document.getElementById('toastContainer');
-const signInWall = document.getElementById('signInWall');
-const wallSignInBtn = document.getElementById('wallSignInBtn');
 const myListingsContent = document.getElementById('myListingsContent');
-
-// Auth refs
-const signedInView = document.getElementById('signedInView');
-const signedOutView = document.getElementById('signedOutView');
-const userAvatar = document.getElementById('userAvatar');
-const userName = document.getElementById('userName');
-const userEmail = document.getElementById('userEmail');
-const signOutLink = document.getElementById('signOutLink');
-
-localStorage.removeItem('via_signing_in');
-
-// ---- Auth ----
-if (sessionStorage.getItem('via_authed') === '1' && signInWall) {
-  signInWall.style.display = 'none';
-}
-if (sessionStorage.getItem('via_admin') === '1') {
-  const adminLink = document.getElementById('adminLink');
-  const adminLinkMobile = document.getElementById('adminLinkMobile');
-  if (adminLink) adminLink.style.display = 'inline-flex';
-  if (adminLinkMobile) adminLinkMobile.style.display = 'block';
-}
-
-if (auth) {
-  onAuthStateChanged(auth, (user) => {
-    currentUser = user;
-    if (user) {
-      sessionStorage.setItem('via_authed', '1');
-      if (signInWall) signInWall.style.display = 'none';
-      if (signedOutView) signedOutView.style.display = 'none';
-      signedInView.style.display = 'flex';
-      userAvatar.src = user.photoURL || '';
-      const userAvatarLarge = document.getElementById('userAvatarLarge');
-      if (userAvatarLarge) userAvatarLarge.src = user.photoURL || '';
-      userName.textContent = user.displayName || 'User';
-      if (userEmail) userEmail.textContent = user.email || '';
-      loadMyListings();
-    } else {
-      sessionStorage.removeItem('via_authed');
-      if (signInWall) signInWall.style.display = 'flex';
-      if (signedOutView) signedOutView.style.display = 'block';
-      signedInView.style.display = 'none';
-    }
-  });
-}
-
-// Wall sign-in
-wallSignInBtn.addEventListener('click', async () => {
-  if (!auth) { showToast('Firebase not initialized.', 'error'); return; }
-  wallSignInBtn.disabled = true;
-  wallSignInBtn.textContent = 'Signing in...';
-  try {
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
-    const result = await signInWithPopup(auth, provider);
-    if (result.user) {
-      sessionStorage.setItem('via_authed', '1');
-      if (signInWall) signInWall.style.display = 'none';
-    }
-  } catch (err) {
-    wallSignInBtn.disabled = false;
-    wallSignInBtn.innerHTML = '<img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google"> Continue with Google';
-    if (err.code !== 'auth/popup-closed-by-user') {
-      showToast(`Sign-in failed: ${err.message}`, 'error');
-    }
-  }
-});
-
-// Sign out
-if (signOutLink) {
-  signOutLink.addEventListener('click', async () => {
-    if (!auth) return;
-    try {
-      sessionStorage.removeItem('via_admin');
-      await signOut(auth);
-      showToast('Signed out.', 'info');
-    } catch (err) {
-      console.error('Sign-out error:', err);
-    }
-  });
-}
-
-// Profile dropdown
-const profileDropdown = document.getElementById('profileDropdown');
-if (userAvatar) {
-  userAvatar.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (!profileDropdown) return;
-    profileDropdown.style.display = profileDropdown.style.display === 'block' ? 'none' : 'block';
-  });
-}
-if (profileDropdown) {
-  document.addEventListener('click', () => { profileDropdown.style.display = 'none'; });
-  profileDropdown.addEventListener('click', (e) => e.stopPropagation());
-}
+const emailLookupInput = document.getElementById('emailLookupInput');
+const emailLookupBtn = document.getElementById('emailLookupBtn');
 
 // Mobile menu
 const mobileMenuBtn = document.getElementById('mobileMenuBtn');
@@ -145,9 +47,28 @@ function formatPriceINR(num) {
   return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(num);
 }
 
+// ---- Email Lookup ----
+emailLookupBtn.addEventListener('click', () => {
+  const email = emailLookupInput.value.trim().toLowerCase();
+  if (!email) {
+    showToast('Please enter your email address.', 'error');
+    return;
+  }
+  loadMyListings(email);
+});
+
+emailLookupInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    emailLookupBtn.click();
+  }
+});
+
 // ---- Load My Listings ----
-async function loadMyListings() {
-  if (!db || !currentUser) return;
+async function loadMyListings(email) {
+  if (!db) {
+    myListingsContent.innerHTML = '<p style="text-align:center;color:#8993a4;padding:48px;">Firebase not configured. Please update config.js.</p>';
+    return;
+  }
 
   myListingsContent.innerHTML = '<div class="listing-loading"><div class="scan-spinner"></div><p>Loading your listings...</p></div>';
 
@@ -156,7 +77,7 @@ async function loadMyListings() {
     const docs = [];
     snapshot.forEach(d => {
       const data = d.data();
-      if (data.postedByEmail === currentUser.email) {
+      if ((data.postedByEmail || '').toLowerCase() === email) {
         docs.push({ id: d.id, ...data });
       }
     });
@@ -171,7 +92,7 @@ async function loadMyListings() {
       myListingsContent.innerHTML = `
         <div class="empty-state">
           <span class="empty-icon">🏘️</span>
-          <p>You haven't posted any properties yet.</p>
+          <p>No properties found for this email.</p>
           <a href="post.html" class="btn-primary" style="display:inline-flex;width:auto;margin-top:16px;">Post Your First Property</a>
         </div>`;
       return;
@@ -227,7 +148,7 @@ async function loadMyListings() {
         try {
           await updateDoc(doc(db, 'properties', id), { status: 'inactive' });
           showToast('Property marked as inactive.', 'success');
-          loadMyListings();
+          loadMyListings(email);
         } catch (err) {
           showToast(`Failed: ${err.message}`, 'error');
           btn.disabled = false;
@@ -244,7 +165,7 @@ async function loadMyListings() {
         try {
           await updateDoc(doc(db, 'properties', id), { status: 'active' });
           showToast('Property marked as active.', 'success');
-          loadMyListings();
+          loadMyListings(email);
         } catch (err) {
           showToast(`Failed: ${err.message}`, 'error');
           btn.disabled = false;
@@ -262,7 +183,7 @@ async function loadMyListings() {
         try {
           await deleteDoc(doc(db, 'properties', id));
           showToast('Property deleted.', 'success');
-          loadMyListings();
+          loadMyListings(email);
         } catch (err) {
           showToast(`Failed: ${err.message}`, 'error');
           btn.disabled = false;

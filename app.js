@@ -4,17 +4,13 @@
 
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getFirestore, collection, getDocs } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
-import { getAuth, signInWithPopup, signOut, onAuthStateChanged, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 // ---- Firebase Init ----
 let db = null;
-let auth = null;
-let currentUser = null;
 
 try {
   const app = initializeApp(CONFIG.FIREBASE);
   db = getFirestore(app);
-  auth = getAuth(app);
 } catch (e) {
   console.warn('Firebase not configured yet.', e);
 }
@@ -26,15 +22,6 @@ const resultsCount = document.getElementById('resultsCount');
 const loadMoreWrapper = document.getElementById('loadMoreWrapper');
 const loadMoreBtn = document.getElementById('loadMoreBtn');
 const toastContainer = document.getElementById('toastContainer');
-
-// Auth refs
-const signedInView = document.getElementById('signedInView');
-const signedOutView = document.getElementById('signedOutView');
-const userAvatar = document.getElementById('userAvatar');
-const userName = document.getElementById('userName');
-const userEmail = document.getElementById('userEmail');
-const signOutLink = document.getElementById('signOutLink');
-const headerSignInBtn = document.getElementById('headerSignInBtn');
 
 // Filter refs
 const filterCity = document.getElementById('filterCity');
@@ -52,117 +39,6 @@ let allProperties = [];
 let filteredProperties = [];
 let displayedCount = 0;
 const PAGE_SIZE = 12;
-
-// ---- Auth ----
-if (sessionStorage.getItem('via_authed') === '1') {
-  // Already authed - show signed-in state
-}
-if (sessionStorage.getItem('via_admin') === '1') {
-  const adminLink = document.getElementById('adminLink');
-  const adminLinkMobile = document.getElementById('adminLinkMobile');
-  if (adminLink) adminLink.style.display = 'inline-flex';
-  if (adminLinkMobile) adminLinkMobile.style.display = 'block';
-}
-
-if (auth) {
-  onAuthStateChanged(auth, (user) => {
-    currentUser = user;
-    if (user) {
-      sessionStorage.setItem('via_authed', '1');
-      signedOutView.style.display = 'none';
-      signedInView.style.display = 'flex';
-      userAvatar.src = user.photoURL || '';
-      const userAvatarLarge = document.getElementById('userAvatarLarge');
-      if (userAvatarLarge) userAvatarLarge.src = user.photoURL || '';
-      userName.textContent = user.displayName || 'User';
-      if (userEmail) userEmail.textContent = user.email || '';
-      // Update bottom nav
-      const bottomNavLabel = document.getElementById('bottomNavSignInLabel');
-      if (bottomNavLabel) bottomNavLabel.textContent = 'Profile';
-      if (sessionStorage.getItem('via_admin') === '1') {
-        const adminLink = document.getElementById('adminLink');
-        const adminLinkMobile = document.getElementById('adminLinkMobile');
-        if (adminLink) adminLink.style.display = 'inline-flex';
-        if (adminLinkMobile) adminLinkMobile.style.display = 'block';
-      }
-    } else {
-      sessionStorage.removeItem('via_authed');
-      signedOutView.style.display = 'block';
-      signedInView.style.display = 'none';
-      const bottomNavLabel = document.getElementById('bottomNavSignInLabel');
-      if (bottomNavLabel) bottomNavLabel.textContent = 'Sign In';
-    }
-  });
-}
-
-// Header sign-in button
-if (headerSignInBtn) {
-  headerSignInBtn.addEventListener('click', async () => {
-    if (!auth) { showToast('Firebase not initialized.', 'error'); return; }
-    try {
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
-      await signInWithPopup(auth, provider);
-    } catch (err) {
-      if (err.code !== 'auth/popup-closed-by-user') {
-        showToast(`Sign-in failed: ${err.message}`, 'error');
-      }
-    }
-  });
-}
-
-// Bottom nav sign-in
-const bottomNavSignIn = document.getElementById('bottomNavSignIn');
-if (bottomNavSignIn) {
-  bottomNavSignIn.addEventListener('click', async (e) => {
-    if (currentUser) {
-      // Already signed in - could navigate to profile or toggle dropdown
-      e.preventDefault();
-      if (userAvatar) userAvatar.click();
-      return;
-    }
-    e.preventDefault();
-    if (!auth) { showToast('Firebase not initialized.', 'error'); return; }
-    try {
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({ prompt: 'select_account' });
-      await signInWithPopup(auth, provider);
-    } catch (err) {
-      if (err.code !== 'auth/popup-closed-by-user') {
-        showToast(`Sign-in failed: ${err.message}`, 'error');
-      }
-    }
-  });
-}
-
-// Sign out
-if (signOutLink) {
-  signOutLink.addEventListener('click', async () => {
-    if (!auth) return;
-    try {
-      sessionStorage.removeItem('via_admin');
-      await signOut(auth);
-      showToast('Signed out.', 'info');
-    } catch (err) {
-      console.error('Sign-out error:', err);
-    }
-  });
-}
-
-// Profile dropdown
-const profileDropdown = document.getElementById('profileDropdown');
-if (userAvatar) {
-  userAvatar.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (!profileDropdown) return;
-    const isOpen = profileDropdown.style.display === 'block';
-    profileDropdown.style.display = isOpen ? 'none' : 'block';
-  });
-}
-if (profileDropdown) {
-  document.addEventListener('click', () => { profileDropdown.style.display = 'none'; });
-  profileDropdown.addEventListener('click', (e) => e.stopPropagation());
-}
 
 // Mobile menu
 const mobileMenuBtn = document.getElementById('mobileMenuBtn');

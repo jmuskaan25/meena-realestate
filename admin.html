@@ -9,21 +9,15 @@
 </head>
 <body>
 
-  <!-- Sign-In Wall with Admin Password -->
+  <!-- Admin Password Gate -->
   <div id="signInWall" class="signin-wall" style="display:flex; position:fixed; inset:0; z-index:9999; background:var(--bg-gray, #f5f5f5); align-items:center; justify-content:center;">
     <div class="signin-card">
       <span class="signin-logo">🏠</span>
       <h1>Meena Estate Agency</h1>
       <p class="subtitle">Admin access required</p>
-      <button class="google-btn" id="wallSignInBtn">
-        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" alt="Google">
-        Continue with Google
-      </button>
-      <div style="margin-top: 20px;">
-        <button type="button" id="adminToggleBtn" class="admin-toggle-btn">Sign in as Admin</button>
-        <div id="adminPasswordField" style="display:none; margin-top: 12px;">
-          <input type="password" id="adminPasswordInput" placeholder="Enter admin password" class="admin-password-input">
-        </div>
+      <div style="margin-top: 16px;">
+        <input type="password" id="adminPasswordInput" placeholder="Enter admin password" class="admin-password-input" style="width:100%; padding:10px 14px; border:1px solid #d1d5db; border-radius:8px; font-size:15px; margin-bottom:12px;">
+        <button class="btn-primary" id="adminLoginBtn" style="width:100%;">Sign in as Admin</button>
       </div>
     </div>
   </div>
@@ -44,21 +38,6 @@
         <a href="admin.html" class="nav-link active">Admin</a>
       </nav>
       <div class="header-actions">
-        <div id="signedInView" style="display:none;" class="profile-menu-wrapper">
-          <img id="userAvatar" src="" alt="" class="profile-avatar">
-          <div id="profileDropdown" class="profile-dropdown" style="display:none;">
-            <div class="profile-dropdown-header">
-              <img id="userAvatarLarge" src="" alt="" class="profile-avatar-large">
-              <div>
-                <div class="profile-dropdown-name" id="userName"></div>
-                <div class="profile-dropdown-email" id="userEmail"></div>
-              </div>
-            </div>
-            <hr class="profile-dropdown-divider">
-            <button class="profile-dropdown-signout" id="signOutLink">Sign out</button>
-          </div>
-        </div>
-        <div id="signedOutView" style="display:none;"></div>
       </div>
     </div>
   </header>
