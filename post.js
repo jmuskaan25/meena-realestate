@@ -308,6 +308,7 @@ postForm.addEventListener('submit', async (e) => {
     state,
     address,
     description,
+    contactPhone: phone,
     postedBy: posterName,
     postedByPhone: posterPhone,
     postedByEmail: posterEmail,

@@ -288,10 +288,14 @@ function renderProperty() {
     document.getElementById('soldBanner').style.display = 'flex';
   }
 
-  // Contact info - always visible (no auth gate)
-  document.getElementById('sellerName').textContent = p.postedBy || '--';
-  document.getElementById('sellerEmail').textContent = p.postedByEmail || '--';
-  document.getElementById('sellerPhone').textContent = p.postedByPhone || '--';
+  // Contact phone
+  const contactPhone = p.contactPhone || p.postedByPhone || '';
+  if (contactPhone) {
+    const phoneDigits = contactPhone.replace(/\D/g, '');
+    document.getElementById('contactPhoneNumber').textContent = contactPhone;
+    document.getElementById('contactPhoneLink').href = `tel:+91${phoneDigits}`;
+    document.getElementById('contactWhatsAppLink').href = `https://wa.me/91${phoneDigits}?text=Hi, I'm interested in your property: ${encodeURIComponent(p.title || '')}`;
+  }
   const sellerPhoto = document.getElementById('sellerPhoto');
   if (p.postedByPhotoURL) {
     sellerPhoto.src = p.postedByPhotoURL;

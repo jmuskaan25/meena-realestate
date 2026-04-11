@@ -1416,38 +1416,42 @@ img { max-width: 100%; display: block; }
   padding: 12px 24px;
 }
 
-.seller-card {
+.contact-phone-card {
   display: flex;
+  gap: 12px;
+}
+
+.contact-phone-btn {
+  display: inline-flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px;
-  background: var(--bg-gray);
-  border-radius: var(--radius);
-}
-
-.seller-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.seller-name {
+  gap: 8px;
+  padding: 12px 20px;
+  background: var(--primary);
+  color: white;
+  border-radius: var(--radius-sm);
   font-size: 15px;
   font-weight: 600;
-  color: var(--text-dark);
-  margin-bottom: 2px;
+  transition: opacity 0.2s;
+  flex: 1;
+  justify-content: center;
 }
+.contact-phone-btn:hover { opacity: 0.85; }
 
-.seller-detail {
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
-.seller-phone {
-  color: var(--green);
+.contact-whatsapp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: #25d366;
+  color: white;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
   font-weight: 600;
+  transition: opacity 0.2s;
+  flex: 1;
+  justify-content: center;
 }
+.contact-whatsapp-btn:hover { opacity: 0.85; }
 
 /* ============================================
    Post Property Form
