@@ -18,6 +18,26 @@ try {
   console.warn('Firebase not configured yet.', e);
 }
 
+// ---- Category detection ----
+const RESIDENTIAL_TYPES = ['Flat/Apartment', 'Residential House', 'Villa', 'Builder Floor Apartment', 'Penthouse', 'Studio Apartment'];
+const COMMERCIAL_TYPES = ['Commercial Office Space', 'Office in IT Park/SEZ', 'Commercial Shop', 'Commercial Showroom', 'Warehouse/Godown'];
+const PLOT_TYPES = ['Residential Land/Plot', 'Commercial Land', 'Industrial Land', 'Agricultural Land', 'Farm House'];
+const PG_TYPES = ['PG', 'Hostel'];
+
+function getCategory(type) {
+  if (!type) return '';
+  if (RESIDENTIAL_TYPES.includes(type)) return 'residential';
+  if (COMMERCIAL_TYPES.includes(type)) return 'commercial';
+  if (PLOT_TYPES.includes(type)) return 'plot';
+  if (PG_TYPES.includes(type)) return 'pg';
+  // Legacy fallback
+  if (type === 'Apartment' || type === 'House/Villa') return 'residential';
+  if (type === 'Plot') return 'plot';
+  if (type === 'Commercial') return 'commercial';
+  if (type === 'PG/Hostel') return 'pg';
+  return '';
+}
+
 // ---- DOM Refs ----
 const listingLoading = document.getElementById('listingLoading');
 const listingNotFound = document.getElementById('listingNotFound');
@@ -107,6 +127,7 @@ async function loadProperty() {
 // ---- Render Property ----
 function renderProperty() {
   const p = propertyData;
+  const category = p.category || getCategory(p.type);
   listingLoading.style.display = 'none';
   listingDetail.style.display = 'block';
 
@@ -134,29 +155,108 @@ function renderProperty() {
     priceShortEl.style.display = 'none';
   }
 
-  // Stats
-  document.getElementById('statArea').textContent = p.area ? Number(p.area).toLocaleString('en-IN') : '--';
-  document.getElementById('statBedrooms').textContent = p.bedrooms || '0';
-  document.getElementById('statBathrooms').textContent = p.bathrooms || '0';
-  document.getElementById('statViews').textContent = (p.views || 0) + 1;
+  // Stats - dynamic based on category
+  const statsContainer = document.getElementById('listingStats');
+  statsContainer.innerHTML = '';
 
-  // Hide bedrooms/bathrooms for plots
-  if (p.type === 'Plot') {
-    document.getElementById('statBedroomsWrapper').style.display = 'none';
-    document.getElementById('statBathroomsWrapper').style.display = 'none';
+  function addStat(value, label) {
+    if (!value && value !== 0) return;
+    const div = document.createElement('div');
+    div.className = 'stat-item';
+    div.innerHTML = `<span class="stat-value">${escapeHtml(String(value))}</span><span class="stat-label">${escapeHtml(label)}</span>`;
+    statsContainer.appendChild(div);
   }
+
+  if (category === 'residential') {
+    if (p.area) addStat(Number(p.area).toLocaleString('en-IN'), 'Sq. Ft.');
+    if (p.bedrooms) addStat(p.bedrooms, 'Bedrooms');
+    if (p.bathrooms) addStat(p.bathrooms, 'Bathrooms');
+  } else if (category === 'commercial') {
+    if (p.area) addStat(Number(p.area).toLocaleString('en-IN'), 'Sq. Ft.');
+    if (p.washrooms) addStat(p.washrooms, 'Washrooms');
+  } else if (category === 'plot') {
+    const plotAreaVal = p.plotArea || p.area;
+    if (plotAreaVal) addStat(Number(plotAreaVal).toLocaleString('en-IN'), 'Plot Area (Sq. Ft.)');
+  } else if (category === 'pg') {
+    if (p.sharing) addStat(p.sharing, 'Sharing');
+  } else {
+    // Legacy fallback
+    if (p.area) addStat(Number(p.area).toLocaleString('en-IN'), 'Sq. Ft.');
+    if (p.bedrooms) addStat(p.bedrooms, 'Bedrooms');
+    if (p.bathrooms) addStat(p.bathrooms, 'Bathrooms');
+  }
+  addStat((p.views || 0) + 1, 'Views');
 
   // Description
   document.getElementById('listingDescription').textContent = p.description || 'No description provided.';
 
-  // Details
-  document.getElementById('detailAddress').textContent = p.address || '--';
-  document.getElementById('detailLocality').textContent = p.locality || '--';
-  document.getElementById('detailCity').textContent = p.city || '--';
-  document.getElementById('detailState').textContent = p.state || '--';
-  document.getElementById('detailPostedAt').textContent = p.postedAt?.toDate
+  // Details grid - dynamic based on category
+  const detailsGrid = document.getElementById('detailsGrid');
+  detailsGrid.innerHTML = '';
+
+  function addDetail(label, value) {
+    if (!value && value !== 0) return;
+    const row = document.createElement('div');
+    row.className = 'detail-row';
+    row.innerHTML = `<span class="detail-label">${escapeHtml(label)}</span><span class="detail-value">${escapeHtml(String(value))}</span>`;
+    detailsGrid.appendChild(row);
+  }
+
+  // Common location details
+  addDetail('Address', p.address);
+  addDetail('Locality', p.locality);
+  addDetail('City', p.city);
+  addDetail('State', p.state);
+
+  // Category-specific details
+  if (category === 'residential') {
+    addDetail('Bedrooms', p.bedrooms);
+    addDetail('Bathrooms', p.bathrooms);
+    addDetail('Balconies', p.balconies);
+    addDetail('Furnished Status', p.furnishedStatus);
+    addDetail('Floor No', p.floorNo);
+    addDetail('Total Floors', p.totalFloors);
+    addDetail('Area', p.area ? `${Number(p.area).toLocaleString('en-IN')} sq ft` : '');
+    addDetail('Construction Status', p.constructionStatus);
+    addDetail('Available From', p.availableFrom);
+  } else if (category === 'commercial') {
+    addDetail('Washrooms', p.washrooms);
+    addDetail('Pantry/Cafeteria', p.pantry);
+    addDetail('Furnished Status', p.furnishedStatus);
+    addDetail('Currently Leased Out', p.currentlyLeased);
+    addDetail('Floor No', p.floorNo);
+    addDetail('Total Floors', p.totalFloors);
+    addDetail('Area', p.area ? `${Number(p.area).toLocaleString('en-IN')} sq ft` : '');
+    addDetail('Construction Status', p.constructionStatus);
+    addDetail('Available From', p.availableFrom);
+  } else if (category === 'plot') {
+    const plotAreaVal = p.plotArea || p.area;
+    addDetail('Plot Area', plotAreaVal ? `${Number(plotAreaVal).toLocaleString('en-IN')} sq ft` : '');
+    addDetail('Plot Length', p.plotLength ? `${p.plotLength} ft` : '');
+    addDetail('Plot Breadth', p.plotBreadth ? `${p.plotBreadth} ft` : '');
+    addDetail('Corner Plot', p.cornerPlot);
+    addDetail('Open Sides', p.openSides);
+    addDetail('Boundary Wall', p.boundaryWall);
+    addDetail('Road Width', p.roadWidth ? `${p.roadWidth} meters` : '');
+    addDetail('Available From', p.availableFrom);
+  } else if (category === 'pg') {
+    addDetail('Sharing', p.sharing);
+    addDetail('Gender', p.gender);
+    addDetail('Meals Included', p.mealsIncluded);
+    addDetail('AC/Non-AC', p.acType);
+    addDetail('Furnished Status', p.furnishedStatus);
+    addDetail('Available From', p.availableFrom);
+  } else {
+    // Legacy fallback
+    if (p.constructionStatus) addDetail('Construction Status', p.constructionStatus);
+    if (p.area) addDetail('Area', `${Number(p.area).toLocaleString('en-IN')} sq ft`);
+  }
+
+  // Posted on
+  const postedAtStr = p.postedAt?.toDate
     ? p.postedAt.toDate().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
-    : '--';
+    : '';
+  addDetail('Posted On', postedAtStr);
 
   // Amenities
   if (p.amenities && p.amenities.length > 0) {
@@ -169,15 +269,6 @@ function renderProperty() {
   if (p.brochureUrl) {
     document.getElementById('brochureSection').style.display = 'block';
     document.getElementById('brochureLink').href = p.brochureUrl;
-  }
-
-  // Construction Status
-  const constructionStatusEl = document.getElementById('constructionStatus');
-  if (constructionStatusEl && p.constructionStatus) {
-    constructionStatusEl.textContent = p.constructionStatus;
-    if (p.constructionStatus === 'Under Construction') {
-      constructionStatusEl.classList.add('status-uc');
-    }
   }
 
   // Brokerage - zero for under construction

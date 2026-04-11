@@ -23,6 +23,20 @@ try {
   console.warn('Firebase not configured yet.', e);
 }
 
+// ---- Property Type Category Mapping ----
+const RESIDENTIAL_TYPES = ['Flat/Apartment', 'Residential House', 'Villa', 'Builder Floor Apartment', 'Penthouse', 'Studio Apartment'];
+const COMMERCIAL_TYPES = ['Commercial Office Space', 'Office in IT Park/SEZ', 'Commercial Shop', 'Commercial Showroom', 'Warehouse/Godown'];
+const PLOT_TYPES = ['Residential Land/Plot', 'Commercial Land', 'Industrial Land', 'Agricultural Land', 'Farm House'];
+const PG_TYPES = ['PG', 'Hostel'];
+
+function getCategory(type) {
+  if (RESIDENTIAL_TYPES.includes(type)) return 'residential';
+  if (COMMERCIAL_TYPES.includes(type)) return 'commercial';
+  if (PLOT_TYPES.includes(type)) return 'plot';
+  if (PG_TYPES.includes(type)) return 'pg';
+  return '';
+}
+
 // ---- DOM Refs ----
 const toastContainer = document.getElementById('toastContainer');
 const postForm = document.getElementById('postForm');
@@ -34,6 +48,14 @@ const imageInput = document.getElementById('imageInput');
 const imageUploadArea = document.getElementById('imageUploadArea');
 const uploadPlaceholder = document.getElementById('uploadPlaceholder');
 const imagePreviews = document.getElementById('imagePreviews');
+const propTypeSelect = document.getElementById('propType');
+
+// Feature sections
+const featuresResidential = document.getElementById('featuresResidential');
+const featuresCommercial = document.getElementById('featuresCommercial');
+const featuresPlot = document.getElementById('featuresPlot');
+const featuresPG = document.getElementById('featuresPG');
+const allFeatureSections = [featuresResidential, featuresCommercial, featuresPlot, featuresPG];
 
 // Brochure refs
 const brochureUpload = document.getElementById('brochureUpload');
@@ -56,6 +78,34 @@ if (mobileMenuBtn && mobileNav) {
     mobileMenuBtn.classList.toggle('open', !isOpen);
   });
 }
+
+// ---- Property Type Change Handler ----
+propTypeSelect.addEventListener('change', () => {
+  const category = getCategory(propTypeSelect.value);
+
+  // Hide all feature sections and disable their required fields
+  allFeatureSections.forEach(section => {
+    section.style.display = 'none';
+    section.querySelectorAll('[required]').forEach(el => el.disabled = true);
+  });
+
+  // Show the relevant section and enable its required fields
+  let activeSection = null;
+  if (category === 'residential') activeSection = featuresResidential;
+  else if (category === 'commercial') activeSection = featuresCommercial;
+  else if (category === 'plot') activeSection = featuresPlot;
+  else if (category === 'pg') activeSection = featuresPG;
+
+  if (activeSection) {
+    activeSection.style.display = 'block';
+    activeSection.querySelectorAll('[required]').forEach(el => el.disabled = false);
+  }
+});
+
+// Initialize: disable all hidden section required fields
+allFeatureSections.forEach(section => {
+  section.querySelectorAll('[required]').forEach(el => el.disabled = true);
+});
 
 // ---- Toast ----
 function showToast(message, type = 'info') {
@@ -186,6 +236,25 @@ brochureRemove.addEventListener('click', () => {
   brochureName.textContent = '';
 });
 
+// ---- Helper: build availableFrom string ----
+function buildAvailableFrom(monthId, yearId) {
+  const month = document.getElementById(monthId).value;
+  const year = document.getElementById(yearId).value;
+  if (month === 'Immediately') return 'Immediately';
+  if (month && year) return `${month} ${year}`;
+  if (month) return month;
+  return '';
+}
+
+// ---- Helper: collect checked amenities from a grid ----
+function collectAmenities(gridId) {
+  const amenities = [];
+  document.querySelectorAll(`#${gridId} input[type="checkbox"]:checked`).forEach(cb => {
+    amenities.push(cb.value);
+  });
+  return amenities;
+}
+
 // ---- Form Submit ----
 postForm.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -202,15 +271,11 @@ postForm.addEventListener('submit', async (e) => {
   const type = document.getElementById('propType').value;
   const listingType = document.getElementById('propListingType').value;
   const price = parseFloat(document.getElementById('propPrice').value);
-  const area = parseFloat(document.getElementById('propArea').value);
-  const bedrooms = parseInt(document.getElementById('propBedrooms').value) || 0;
-  const bathrooms = parseInt(document.getElementById('propBathrooms').value) || 0;
   const city = document.getElementById('propCity').value.trim();
   const locality = document.getElementById('propLocality').value.trim();
   const state = document.getElementById('propState').value.trim();
   const address = document.getElementById('propAddress').value.trim();
   const description = document.getElementById('propDescription').value.trim();
-  const constructionStatus = document.getElementById('propConstructionStatus').value;
   const phone = document.getElementById('propPhone').value.trim();
 
   // Validation
@@ -219,7 +284,7 @@ postForm.addEventListener('submit', async (e) => {
     return;
   }
 
-  if (!title || !type || !listingType || !price || !area || !city || !locality || !state || !address || !description || !phone) {
+  if (!title || !type || !listingType || !price || !city || !locality || !state || !address || !description || !phone) {
     showToast('Please fill in all required fields.', 'error');
     return;
   }
@@ -229,11 +294,73 @@ postForm.addEventListener('submit', async (e) => {
     return;
   }
 
-  // Collect amenities
-  const amenities = [];
-  document.querySelectorAll('#amenitiesGrid input[type="checkbox"]:checked').forEach(cb => {
-    amenities.push(cb.value);
-  });
+  const category = getCategory(type);
+
+  // Build docData based on category
+  const docData = {
+    title,
+    type,
+    category,
+    listingType,
+    price,
+    city,
+    locality,
+    state,
+    address,
+    description,
+    postedBy: posterName,
+    postedByPhone: posterPhone,
+    postedByEmail: posterEmail,
+    postedAt: serverTimestamp(),
+    status: 'active',
+    featured: false,
+    brokeragePercent: 1,
+    views: 0
+  };
+
+  // Category-specific fields
+  if (category === 'residential') {
+    docData.bedrooms = document.getElementById('resBedrooms').value;
+    docData.bathrooms = document.getElementById('resBathrooms').value;
+    docData.balconies = document.getElementById('resBalconies').value;
+    docData.furnishedStatus = document.getElementById('resFurnished').value;
+    docData.floorNo = document.getElementById('resFloorNo').value || '';
+    docData.totalFloors = document.getElementById('resTotalFloors').value || '';
+    docData.area = parseFloat(document.getElementById('resArea').value) || 0;
+    docData.constructionStatus = document.getElementById('resConstructionStatus').value;
+    docData.availableFrom = buildAvailableFrom('resAvailMonth', 'resAvailYear');
+    docData.amenities = collectAmenities('amenitiesResidential');
+  } else if (category === 'commercial') {
+    docData.washrooms = document.getElementById('comWashrooms').value;
+    docData.pantry = document.getElementById('comPantry').value;
+    docData.furnishedStatus = document.getElementById('comFurnished').value;
+    docData.currentlyLeased = document.getElementById('comCurrentlyLeased').value;
+    docData.floorNo = document.getElementById('comFloorNo').value || '';
+    docData.totalFloors = document.getElementById('comTotalFloors').value || '';
+    docData.area = parseFloat(document.getElementById('comArea').value) || 0;
+    docData.constructionStatus = document.getElementById('comConstructionStatus').value;
+    docData.availableFrom = buildAvailableFrom('comAvailMonth', 'comAvailYear');
+    docData.amenities = collectAmenities('amenitiesCommercial');
+  } else if (category === 'plot') {
+    docData.plotArea = parseFloat(document.getElementById('plotArea').value) || 0;
+    docData.area = docData.plotArea; // also store as area for card display
+    docData.plotLength = document.getElementById('plotLength').value || '';
+    docData.plotBreadth = document.getElementById('plotBreadth').value || '';
+    docData.cornerPlot = document.getElementById('plotCorner').value;
+    docData.openSides = document.getElementById('plotOpenSides').value;
+    docData.boundaryWall = document.getElementById('plotBoundaryWall').value;
+    docData.roadWidth = document.getElementById('plotRoadWidth').value || '';
+    docData.availableFrom = buildAvailableFrom('plotAvailMonth', 'plotAvailYear');
+    docData.amenities = collectAmenities('amenitiesPlot');
+  } else if (category === 'pg') {
+    docData.sharing = document.getElementById('pgSharing').value;
+    docData.gender = document.getElementById('pgGender').value;
+    docData.mealsIncluded = document.getElementById('pgMeals').value;
+    docData.acType = document.getElementById('pgAC').value;
+    docData.furnishedStatus = document.getElementById('pgFurnished').value;
+    docData.availableFrom = buildAvailableFrom('pgAvailMonth', 'pgAvailYear');
+    docData.amenities = collectAmenities('amenitiesPG');
+  }
 
   submitBtn.disabled = true;
   submitLoading.style.display = 'flex';
@@ -250,46 +377,17 @@ postForm.addEventListener('submit', async (e) => {
       imageUrls.push(url);
     }
 
+    docData.images = imageUrls;
+
     // Upload brochure if selected
-    let brochureUrl = null;
     if (selectedBrochure) {
       const timestamp = Date.now();
       const brochureRef = ref(storage, `brochures/${timestamp}_${selectedBrochure.name}`);
       await uploadBytes(brochureRef, selectedBrochure);
-      brochureUrl = await getDownloadURL(brochureRef);
+      docData.brochureUrl = await getDownloadURL(brochureRef);
     }
 
     // Save to Firestore
-    const docData = {
-      title,
-      type,
-      listingType,
-      price,
-      area,
-      bedrooms,
-      bathrooms,
-      city,
-      locality,
-      state,
-      address,
-      description,
-      amenities,
-      constructionStatus,
-      images: imageUrls,
-      postedBy: posterName,
-      postedByPhone: posterPhone,
-      postedByEmail: posterEmail,
-      postedAt: serverTimestamp(),
-      status: 'active',
-      featured: false,
-      brokeragePercent: 1,
-      views: 0
-    };
-
-    if (brochureUrl) {
-      docData.brochureUrl = brochureUrl;
-    }
-
     await addDoc(collection(db, 'properties'), docData);
 
     // Show success
@@ -316,4 +414,9 @@ document.getElementById('postAnotherBtn').addEventListener('click', () => {
   brochurePreview.style.display = 'none';
   brochureName.textContent = '';
   renderImagePreviews();
+  // Hide all feature sections
+  allFeatureSections.forEach(section => {
+    section.style.display = 'none';
+    section.querySelectorAll('[required]').forEach(el => el.disabled = true);
+  });
 });

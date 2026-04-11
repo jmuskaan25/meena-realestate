@@ -15,6 +15,26 @@ try {
   console.warn('Firebase not configured yet.', e);
 }
 
+// ---- Category Mapping ----
+const RESIDENTIAL_TYPES = ['Flat/Apartment', 'Residential House', 'Villa', 'Builder Floor Apartment', 'Penthouse', 'Studio Apartment'];
+const COMMERCIAL_TYPES = ['Commercial Office Space', 'Office in IT Park/SEZ', 'Commercial Shop', 'Commercial Showroom', 'Warehouse/Godown'];
+const PLOT_TYPES = ['Residential Land/Plot', 'Commercial Land', 'Industrial Land', 'Agricultural Land', 'Farm House'];
+const PG_TYPES = ['PG', 'Hostel'];
+
+function getCategory(type) {
+  if (!type) return '';
+  if (RESIDENTIAL_TYPES.includes(type)) return 'residential';
+  if (COMMERCIAL_TYPES.includes(type)) return 'commercial';
+  if (PLOT_TYPES.includes(type)) return 'plot';
+  if (PG_TYPES.includes(type)) return 'pg';
+  // Legacy fallback
+  if (type === 'Apartment' || type === 'House/Villa') return 'residential';
+  if (type === 'Plot') return 'plot';
+  if (type === 'Commercial') return 'commercial';
+  if (type === 'PG/Hostel') return 'pg';
+  return '';
+}
+
 // ---- DOM Refs ----
 const propertyGrid = document.getElementById('propertyGrid');
 const emptyState = document.getElementById('emptyState');
@@ -39,6 +59,7 @@ let allProperties = [];
 let filteredProperties = [];
 let displayedCount = 0;
 const PAGE_SIZE = 12;
+let activeCategoryFilter = ''; // category filter from scroll bar
 
 // Mobile menu
 const mobileMenuBtn = document.getElementById('mobileMenuBtn');
@@ -52,7 +73,7 @@ if (mobileMenuBtn && mobileNav) {
 }
 
 // ---- Category Bar ----
-const categoryItems = document.querySelectorAll('.category-item[data-filter-type]');
+const categoryItems = document.querySelectorAll('.category-item[data-filter-category]');
 categoryItems.forEach(item => {
   item.addEventListener('click', () => {
     // Update active state
@@ -60,9 +81,9 @@ categoryItems.forEach(item => {
     item.classList.add('active');
 
     // Apply category filter
-    const type = item.dataset.filterType || '';
+    activeCategoryFilter = item.dataset.filterCategory || '';
     const listing = item.dataset.filterListing || '';
-    filterType.value = type;
+    filterType.value = ''; // clear specific type filter when category bar is used
     filterListingType.value = listing;
     applyFiltersAndSort();
   });
@@ -169,16 +190,26 @@ function applyFiltersAndSort() {
 
   filteredProperties = allProperties.filter(p => {
     if (city && !(p.city || '').toLowerCase().includes(city) && !(p.locality || '').toLowerCase().includes(city) && !(p.title || '').toLowerCase().includes(city)) return false;
+
+    // Type filter: exact match on specific type
     if (type && p.type !== type) return false;
+
+    // Category filter from scroll bar: match against category
+    if (activeCategoryFilter) {
+      const propCategory = p.category || getCategory(p.type);
+      if (propCategory !== activeCategoryFilter) return false;
+    }
+
     if (listingType && p.listingType !== listingType) return false;
     if (p.price < minPrice) return false;
     if (p.price > maxPrice) return false;
     if (bedrooms) {
       const bedroomVal = Number(bedrooms);
+      const propBedrooms = Number(p.bedrooms) || 0;
       if (bedroomVal === 4) {
-        if ((p.bedrooms || 0) < 4) return false;
+        if (propBedrooms < 4) return false;
       } else {
-        if ((p.bedrooms || 0) !== bedroomVal) return false;
+        if (propBedrooms !== bedroomVal) return false;
       }
     }
     return true;
@@ -223,6 +254,31 @@ function renderMore() {
 
     const imgSrc = (p.images && p.images.length > 0) ? p.images[0] : 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" fill="%23e5e7eb"><rect width="400" height="300"/><text x="200" y="160" text-anchor="middle" fill="%239ca3af" font-size="48">🏠</text></svg>';
     const listingBadgeClass = p.listingType === 'Rent' ? 'badge-rent' : 'badge-sale';
+    const category = p.category || getCategory(p.type);
+
+    // Build stats based on category
+    let statsHtml = '';
+    if (category === 'residential') {
+      if (p.area) statsHtml += `<span>${Number(p.area).toLocaleString('en-IN')} sq.ft.</span>`;
+      if (p.bedrooms) statsHtml += `<span>${p.bedrooms} BHK</span>`;
+      if (p.bathrooms) statsHtml += `<span>${p.bathrooms} Bath</span>`;
+    } else if (category === 'commercial') {
+      if (p.area) statsHtml += `<span>${Number(p.area).toLocaleString('en-IN')} sq.ft.</span>`;
+      if (p.washrooms) statsHtml += `<span>${p.washrooms} Washrooms</span>`;
+    } else if (category === 'plot') {
+      const plotAreaVal = p.plotArea || p.area;
+      if (plotAreaVal) statsHtml += `<span>${Number(plotAreaVal).toLocaleString('en-IN')} sq.ft.</span>`;
+      if (p.cornerPlot === 'Yes') statsHtml += `<span>Corner Plot</span>`;
+    } else if (category === 'pg') {
+      if (p.sharing) statsHtml += `<span>${p.sharing} Sharing</span>`;
+      if (p.gender) statsHtml += `<span>${p.gender}</span>`;
+      if (p.acType) statsHtml += `<span>${p.acType}</span>`;
+    } else {
+      // Legacy fallback
+      if (p.area) statsHtml += `<span>${p.area} sq.ft.</span>`;
+      if (p.bedrooms) statsHtml += `<span>${p.bedrooms} BHK</span>`;
+      if (p.bathrooms) statsHtml += `<span>${p.bathrooms} Bath</span>`;
+    }
 
     card.innerHTML = `
       <div class="card-image">
@@ -236,9 +292,7 @@ function renderMore() {
         <h3 class="card-title">${escapeHtml(p.title)}</h3>
         <p class="card-location">${escapeHtml(p.locality || '')}${p.locality && p.city ? ', ' : ''}${escapeHtml(p.city || '')}</p>
         <div class="card-stats">
-          ${p.area ? `<span>${p.area} sq.ft.</span>` : ''}
-          ${p.bedrooms ? `<span>${p.bedrooms} BHK</span>` : ''}
-          ${p.bathrooms ? `<span>${p.bathrooms} Bath</span>` : ''}
+          ${statsHtml}
         </div>
       </div>
     `;
@@ -269,9 +323,10 @@ clearBtn.addEventListener('click', () => {
   filterMaxPrice.value = '';
   filterBedrooms.value = '';
   sortBy.value = 'newest';
+  activeCategoryFilter = '';
   // Reset category bar
   document.querySelectorAll('.category-item').forEach(c => c.classList.remove('active'));
-  const allCategory = document.querySelector('.category-item[data-filter-type=""][data-filter-listing=""]');
+  const allCategory = document.querySelector('.category-item[data-filter-category=""][data-filter-listing=""]');
   if (allCategory) allCategory.classList.add('active');
   // Reset filter pills
   filterPills.forEach(p => p.classList.remove('active'));
@@ -284,7 +339,12 @@ filterCity.addEventListener('keydown', (e) => {
 });
 
 // Also apply filters when dropdowns change
-filterType.addEventListener('change', applyFiltersAndSort);
+filterType.addEventListener('change', () => {
+  // When user picks a specific type, clear category filter
+  activeCategoryFilter = '';
+  document.querySelectorAll('.category-item').forEach(c => c.classList.remove('active'));
+  applyFiltersAndSort();
+});
 filterListingType.addEventListener('change', applyFiltersAndSort);
 filterBedrooms.addEventListener('change', applyFiltersAndSort);
 

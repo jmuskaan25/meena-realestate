@@ -76,12 +76,33 @@
             <div class="form-group">
               <label for="propType">Property Type *</label>
               <select id="propType" required>
-                <option value="">Select Type</option>
-                <option value="Apartment">Apartment</option>
-                <option value="House/Villa">House/Villa</option>
-                <option value="Plot">Plot</option>
-                <option value="Commercial">Commercial</option>
-                <option value="PG/Hostel">PG/Hostel</option>
+                <option value="">Select Property Type</option>
+                <optgroup label="RESIDENTIAL">
+                  <option value="Flat/Apartment">Flat/Apartment</option>
+                  <option value="Residential House">Residential House</option>
+                  <option value="Villa">Villa</option>
+                  <option value="Builder Floor Apartment">Builder Floor Apartment</option>
+                  <option value="Penthouse">Penthouse</option>
+                  <option value="Studio Apartment">Studio Apartment</option>
+                </optgroup>
+                <optgroup label="COMMERCIAL">
+                  <option value="Commercial Office Space">Commercial Office Space</option>
+                  <option value="Office in IT Park/SEZ">Office in IT Park/SEZ</option>
+                  <option value="Commercial Shop">Commercial Shop</option>
+                  <option value="Commercial Showroom">Commercial Showroom</option>
+                  <option value="Warehouse/Godown">Warehouse/Godown</option>
+                </optgroup>
+                <optgroup label="PLOT / LAND">
+                  <option value="Residential Land/Plot">Residential Land/Plot</option>
+                  <option value="Commercial Land">Commercial Land</option>
+                  <option value="Industrial Land">Industrial Land</option>
+                  <option value="Agricultural Land">Agricultural Land</option>
+                  <option value="Farm House">Farm House</option>
+                </optgroup>
+                <optgroup label="PG / HOSTEL">
+                  <option value="PG">PG</option>
+                  <option value="Hostel">Hostel</option>
+                </optgroup>
               </select>
             </div>
             <div class="form-group">
@@ -97,29 +118,6 @@
             <div class="form-group">
               <label for="propPrice">Price (INR) *</label>
               <input type="number" id="propPrice" placeholder="e.g. 4500000" required min="0">
-            </div>
-            <div class="form-group">
-              <label for="propArea">Area (sq ft) *</label>
-              <input type="number" id="propArea" placeholder="e.g. 1200" required min="0">
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="propConstructionStatus">Construction Status *</label>
-              <select id="propConstructionStatus" required>
-                <option value="Ready to Move">Ready to Move</option>
-                <option value="Under Construction">Under Construction</option>
-              </select>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="propBedrooms">Bedrooms</label>
-              <input type="number" id="propBedrooms" placeholder="0" min="0" value="0">
-            </div>
-            <div class="form-group">
-              <label for="propBathrooms">Bathrooms</label>
-              <input type="number" id="propBathrooms" placeholder="0" min="0" value="0">
             </div>
           </div>
         </div>
@@ -147,28 +145,455 @@
           </div>
         </div>
 
-        <!-- Description & Amenities -->
+        <!-- Description -->
         <div class="form-section">
-          <h3>Description & Amenities</h3>
+          <h3>Description</h3>
           <div class="form-group">
             <label for="propDescription">Description *</label>
             <textarea id="propDescription" placeholder="Describe your property - features, condition, nearby landmarks..." required rows="4"></textarea>
           </div>
+        </div>
+
+        <!-- Property Features: Residential -->
+        <div class="form-section" id="featuresResidential" style="display:none;">
+          <h3>Property Features</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="resBedrooms">Bedrooms *</label>
+              <select id="resBedrooms" required>
+                <option value="">Select</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5+">5+</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="resBathrooms">Bathrooms *</label>
+              <select id="resBathrooms" required>
+                <option value="">Select</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="3+">3+</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="resBalconies">Balconies</label>
+              <select id="resBalconies">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="3+">3+</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="resFurnished">Furnished Status *</label>
+              <select id="resFurnished" required>
+                <option value="">Select</option>
+                <option value="Furnished">Furnished</option>
+                <option value="Semi-Furnished">Semi-Furnished</option>
+                <option value="Unfurnished">Unfurnished</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="resFloorNo">Floor No</label>
+              <input type="number" id="resFloorNo" placeholder="e.g. 3" min="0">
+            </div>
+            <div class="form-group">
+              <label for="resTotalFloors">Total Floors</label>
+              <input type="number" id="resTotalFloors" placeholder="e.g. 12" min="0">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="resArea">Area (sq ft) *</label>
+              <input type="number" id="resArea" placeholder="e.g. 1200" required min="0">
+            </div>
+            <div class="form-group">
+              <label for="resConstructionStatus">Construction Status *</label>
+              <select id="resConstructionStatus" required>
+                <option value="">Select</option>
+                <option value="Under Construction">Under Construction</option>
+                <option value="Ready to Move">Ready to Move</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="resAvailMonth">Available From - Month</label>
+              <select id="resAvailMonth">
+                <option value="">Select Month</option>
+                <option value="January">January</option>
+                <option value="February">February</option>
+                <option value="March">March</option>
+                <option value="April">April</option>
+                <option value="May">May</option>
+                <option value="June">June</option>
+                <option value="July">July</option>
+                <option value="August">August</option>
+                <option value="September">September</option>
+                <option value="October">October</option>
+                <option value="November">November</option>
+                <option value="December">December</option>
+                <option value="Immediately">Immediately</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="resAvailYear">Year</label>
+              <select id="resAvailYear">
+                <option value="">Select Year</option>
+                <option value="2026">2026</option>
+                <option value="2027">2027</option>
+                <option value="2028">2028</option>
+                <option value="2029">2029</option>
+                <option value="2030">2030</option>
+              </select>
+            </div>
+          </div>
           <div class="form-group">
             <label>Amenities</label>
-            <div class="amenities-checkbox-grid" id="amenitiesGrid">
+            <div class="amenities-checkbox-grid" id="amenitiesResidential">
               <label class="checkbox-label"><input type="checkbox" value="Parking"> Parking</label>
               <label class="checkbox-label"><input type="checkbox" value="Lift"> Lift</label>
-              <label class="checkbox-label"><input type="checkbox" value="Garden"> Garden</label>
               <label class="checkbox-label"><input type="checkbox" value="Gym"> Gym</label>
               <label class="checkbox-label"><input type="checkbox" value="Swimming Pool"> Swimming Pool</label>
+              <label class="checkbox-label"><input type="checkbox" value="Garden/Park"> Garden/Park</label>
               <label class="checkbox-label"><input type="checkbox" value="Power Backup"> Power Backup</label>
-              <label class="checkbox-label"><input type="checkbox" value="Security"> Security</label>
+              <label class="checkbox-label"><input type="checkbox" value="24x7 Security"> 24x7 Security</label>
               <label class="checkbox-label"><input type="checkbox" value="Club House"> Club House</label>
-              <label class="checkbox-label"><input type="checkbox" value="Children Play Area"> Play Area</label>
-              <label class="checkbox-label"><input type="checkbox" value="Balcony"> Balcony</label>
-              <label class="checkbox-label"><input type="checkbox" value="Furnished"> Furnished</label>
-              <label class="checkbox-label"><input type="checkbox" value="Vastu Compliant"> Vastu Compliant</label>
+              <label class="checkbox-label"><input type="checkbox" value="Children's Play Area"> Children's Play Area</label>
+              <label class="checkbox-label"><input type="checkbox" value="Gas Pipeline"> Gas Pipeline</label>
+              <label class="checkbox-label"><input type="checkbox" value="Intercom"> Intercom</label>
+              <label class="checkbox-label"><input type="checkbox" value="Rain Water Harvesting"> Rain Water Harvesting</label>
+              <label class="checkbox-label"><input type="checkbox" value="Vaastu Compliant"> Vaastu Compliant</label>
+              <label class="checkbox-label"><input type="checkbox" value="Fire Safety"> Fire Safety</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Property Features: Commercial -->
+        <div class="form-section" id="featuresCommercial" style="display:none;">
+          <h3>Property Features</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="comWashrooms">Washrooms</label>
+              <select id="comWashrooms">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="3+">3+</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="comPantry">Pantry/Cafeteria</label>
+              <select id="comPantry">
+                <option value="">Select</option>
+                <option value="Dry">Dry</option>
+                <option value="Wet">Wet</option>
+                <option value="Not Available">Not Available</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="comFurnished">Furnished Status *</label>
+              <select id="comFurnished" required>
+                <option value="">Select</option>
+                <option value="Furnished">Furnished</option>
+                <option value="Unfurnished">Unfurnished</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="comCurrentlyLeased">Currently Leased Out</label>
+              <select id="comCurrentlyLeased">
+                <option value="">Select</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="comFloorNo">Floor No</label>
+              <input type="number" id="comFloorNo" placeholder="e.g. 5" min="0">
+            </div>
+            <div class="form-group">
+              <label for="comTotalFloors">Total Floors</label>
+              <input type="number" id="comTotalFloors" placeholder="e.g. 20" min="0">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="comArea">Area (sq ft) *</label>
+              <input type="number" id="comArea" placeholder="e.g. 2000" required min="0">
+            </div>
+            <div class="form-group">
+              <label for="comConstructionStatus">Construction Status *</label>
+              <select id="comConstructionStatus" required>
+                <option value="">Select</option>
+                <option value="Under Construction">Under Construction</option>
+                <option value="Ready to Move">Ready to Move</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="comAvailMonth">Available From - Month</label>
+              <select id="comAvailMonth">
+                <option value="">Select Month</option>
+                <option value="January">January</option>
+                <option value="February">February</option>
+                <option value="March">March</option>
+                <option value="April">April</option>
+                <option value="May">May</option>
+                <option value="June">June</option>
+                <option value="July">July</option>
+                <option value="August">August</option>
+                <option value="September">September</option>
+                <option value="October">October</option>
+                <option value="November">November</option>
+                <option value="December">December</option>
+                <option value="Immediately">Immediately</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="comAvailYear">Year</label>
+              <select id="comAvailYear">
+                <option value="">Select Year</option>
+                <option value="2026">2026</option>
+                <option value="2027">2027</option>
+                <option value="2028">2028</option>
+                <option value="2029">2029</option>
+                <option value="2030">2030</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Amenities</label>
+            <div class="amenities-checkbox-grid" id="amenitiesCommercial">
+              <label class="checkbox-label"><input type="checkbox" value="Parking"> Parking</label>
+              <label class="checkbox-label"><input type="checkbox" value="Lift"> Lift</label>
+              <label class="checkbox-label"><input type="checkbox" value="Power Backup"> Power Backup</label>
+              <label class="checkbox-label"><input type="checkbox" value="24x7 Security"> 24x7 Security</label>
+              <label class="checkbox-label"><input type="checkbox" value="Fire Safety"> Fire Safety</label>
+              <label class="checkbox-label"><input type="checkbox" value="Central AC"> Central AC</label>
+              <label class="checkbox-label"><input type="checkbox" value="Conference Room"> Conference Room</label>
+              <label class="checkbox-label"><input type="checkbox" value="Reception"> Reception</label>
+              <label class="checkbox-label"><input type="checkbox" value="Maintenance Staff"> Maintenance Staff</label>
+              <label class="checkbox-label"><input type="checkbox" value="Visitor Parking"> Visitor Parking</label>
+              <label class="checkbox-label"><input type="checkbox" value="ATM"> ATM</label>
+              <label class="checkbox-label"><input type="checkbox" value="Food Court/Cafeteria"> Food Court/Cafeteria</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Property Features: Plot/Land -->
+        <div class="form-section" id="featuresPlot" style="display:none;">
+          <h3>Property Features</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="plotArea">Plot Area (sq ft) *</label>
+              <input type="number" id="plotArea" placeholder="e.g. 2400" required min="0">
+            </div>
+            <div class="form-group">
+              <label for="plotRoadWidth">Road Width (meters)</label>
+              <input type="number" id="plotRoadWidth" placeholder="e.g. 12" min="0" step="0.5">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="plotLength">Plot Length (ft, optional)</label>
+              <input type="number" id="plotLength" placeholder="e.g. 60" min="0">
+            </div>
+            <div class="form-group">
+              <label for="plotBreadth">Plot Breadth (ft, optional)</label>
+              <input type="number" id="plotBreadth" placeholder="e.g. 40" min="0">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="plotCorner">Corner Plot</label>
+              <select id="plotCorner">
+                <option value="">Select</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="plotOpenSides">No. of Open Sides</label>
+              <select id="plotOpenSides">
+                <option value="">Select</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="plotBoundaryWall">Boundary Wall</label>
+              <select id="plotBoundaryWall">
+                <option value="">Select</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="plotAvailMonth">Available From - Month</label>
+              <select id="plotAvailMonth">
+                <option value="">Select Month</option>
+                <option value="January">January</option>
+                <option value="February">February</option>
+                <option value="March">March</option>
+                <option value="April">April</option>
+                <option value="May">May</option>
+                <option value="June">June</option>
+                <option value="July">July</option>
+                <option value="August">August</option>
+                <option value="September">September</option>
+                <option value="October">October</option>
+                <option value="November">November</option>
+                <option value="December">December</option>
+                <option value="Immediately">Immediately</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="plotAvailYear">Year</label>
+              <select id="plotAvailYear">
+                <option value="">Select Year</option>
+                <option value="2026">2026</option>
+                <option value="2027">2027</option>
+                <option value="2028">2028</option>
+                <option value="2029">2029</option>
+                <option value="2030">2030</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Amenities</label>
+            <div class="amenities-checkbox-grid" id="amenitiesPlot">
+              <label class="checkbox-label"><input type="checkbox" value="Boundary Wall"> Boundary Wall</label>
+              <label class="checkbox-label"><input type="checkbox" value="Water Supply"> Water Supply</label>
+              <label class="checkbox-label"><input type="checkbox" value="Electricity"> Electricity</label>
+              <label class="checkbox-label"><input type="checkbox" value="Sewage"> Sewage</label>
+              <label class="checkbox-label"><input type="checkbox" value="Road Access"> Road Access</label>
+              <label class="checkbox-label"><input type="checkbox" value="Gated Community"> Gated Community</label>
+              <label class="checkbox-label"><input type="checkbox" value="Park/Garden"> Park/Garden</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Property Features: PG/Hostel -->
+        <div class="form-section" id="featuresPG" style="display:none;">
+          <h3>Property Features</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="pgSharing">Sharing *</label>
+              <select id="pgSharing" required>
+                <option value="">Select</option>
+                <option value="Single">Single</option>
+                <option value="Double">Double</option>
+                <option value="Triple">Triple</option>
+                <option value="Four+">Four+</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="pgGender">Gender *</label>
+              <select id="pgGender" required>
+                <option value="">Select</option>
+                <option value="Boys">Boys</option>
+                <option value="Girls">Girls</option>
+                <option value="Any">Any</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="pgMeals">Meals Included</label>
+              <select id="pgMeals">
+                <option value="">Select</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="pgAC">AC/Non-AC</label>
+              <select id="pgAC">
+                <option value="">Select</option>
+                <option value="AC">AC</option>
+                <option value="Non-AC">Non-AC</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="pgFurnished">Furnished Status *</label>
+              <select id="pgFurnished" required>
+                <option value="">Select</option>
+                <option value="Furnished">Furnished</option>
+                <option value="Semi-Furnished">Semi-Furnished</option>
+                <option value="Unfurnished">Unfurnished</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="pgAvailMonth">Available From - Month</label>
+              <select id="pgAvailMonth">
+                <option value="">Select Month</option>
+                <option value="January">January</option>
+                <option value="February">February</option>
+                <option value="March">March</option>
+                <option value="April">April</option>
+                <option value="May">May</option>
+                <option value="June">June</option>
+                <option value="July">July</option>
+                <option value="August">August</option>
+                <option value="September">September</option>
+                <option value="October">October</option>
+                <option value="November">November</option>
+                <option value="December">December</option>
+                <option value="Immediately">Immediately</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="pgAvailYear">Year</label>
+              <select id="pgAvailYear">
+                <option value="">Select Year</option>
+                <option value="2026">2026</option>
+                <option value="2027">2027</option>
+                <option value="2028">2028</option>
+                <option value="2029">2029</option>
+                <option value="2030">2030</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Amenities</label>
+            <div class="amenities-checkbox-grid" id="amenitiesPG">
+              <label class="checkbox-label"><input type="checkbox" value="WiFi"> WiFi</label>
+              <label class="checkbox-label"><input type="checkbox" value="Laundry"> Laundry</label>
+              <label class="checkbox-label"><input type="checkbox" value="Meals"> Meals</label>
+              <label class="checkbox-label"><input type="checkbox" value="AC"> AC</label>
+              <label class="checkbox-label"><input type="checkbox" value="Power Backup"> Power Backup</label>
+              <label class="checkbox-label"><input type="checkbox" value="Parking"> Parking</label>
+              <label class="checkbox-label"><input type="checkbox" value="Housekeeping"> Housekeeping</label>
+              <label class="checkbox-label"><input type="checkbox" value="TV"> TV</label>
+              <label class="checkbox-label"><input type="checkbox" value="Fridge"> Fridge</label>
+              <label class="checkbox-label"><input type="checkbox" value="Washing Machine"> Washing Machine</label>
+              <label class="checkbox-label"><input type="checkbox" value="Water Purifier"> Water Purifier</label>
+              <label class="checkbox-label"><input type="checkbox" value="Gym"> Gym</label>
             </div>
           </div>
         </div>
