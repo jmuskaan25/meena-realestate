@@ -107,6 +107,32 @@ allFeatureSections.forEach(section => {
   section.querySelectorAll('[required]').forEach(el => el.disabled = true);
 });
 
+// ---- "Other" option handler for dropdowns ----
+function getSelectValue(selectId) {
+  const select = document.getElementById(selectId);
+  if (!select) return '';
+  if (select.value === 'Other') {
+    const otherInput = document.getElementById(selectId + 'Other');
+    return otherInput ? otherInput.value.trim() : '';
+  }
+  return select.value;
+}
+
+document.querySelectorAll('select').forEach(select => {
+  const otherId = select.id + 'Other';
+  const otherInput = document.getElementById(otherId);
+  if (!otherInput) return;
+  select.addEventListener('change', () => {
+    if (select.value === 'Other') {
+      otherInput.style.display = 'block';
+      otherInput.focus();
+    } else {
+      otherInput.style.display = 'none';
+      otherInput.value = '';
+    }
+  });
+});
+
 // ---- Toast ----
 function showToast(message, type = 'info') {
   const toast = document.createElement('div');
@@ -321,9 +347,9 @@ postForm.addEventListener('submit', async (e) => {
 
   // Category-specific fields
   if (category === 'residential') {
-    docData.bedrooms = document.getElementById('resBedrooms').value;
-    docData.bathrooms = document.getElementById('resBathrooms').value;
-    docData.balconies = document.getElementById('resBalconies').value;
+    docData.bedrooms = getSelectValue('resBedrooms');
+    docData.bathrooms = getSelectValue('resBathrooms');
+    docData.balconies = getSelectValue('resBalconies');
     docData.furnishedStatus = document.getElementById('resFurnished').value;
     docData.floorNo = document.getElementById('resFloorNo').value || '';
     docData.totalFloors = document.getElementById('resTotalFloors').value || '';
@@ -332,7 +358,7 @@ postForm.addEventListener('submit', async (e) => {
     docData.availableFrom = buildAvailableFrom('resAvailMonth', 'resAvailYear');
     docData.amenities = collectAmenities('amenitiesResidential');
   } else if (category === 'commercial') {
-    docData.washrooms = document.getElementById('comWashrooms').value;
+    docData.washrooms = getSelectValue('comWashrooms');
     docData.pantry = document.getElementById('comPantry').value;
     docData.furnishedStatus = document.getElementById('comFurnished').value;
     docData.currentlyLeased = document.getElementById('comCurrentlyLeased').value;
