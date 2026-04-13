@@ -303,14 +303,6 @@ function renderProperty() {
     enquiryClose.addEventListener('click', () => { enquiryPopup.style.display = 'none'; });
     enquiryPopup.addEventListener('click', (e) => { if (e.target === enquiryPopup) enquiryPopup.style.display = 'none'; });
   }
-  const sellerPhoto = document.getElementById('sellerPhoto');
-  if (p.postedByPhotoURL) {
-    sellerPhoto.src = p.postedByPhotoURL;
-    sellerPhoto.style.display = 'block';
-  } else {
-    sellerPhoto.style.display = 'none';
-  }
-
   // Gallery
   setupGallery(p.images || []);
 }
