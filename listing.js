@@ -107,20 +107,21 @@ async function loadProperty() {
 
     propertyData = { id: docSnap.id, ...docSnap.data() };
     renderProperty();
-
-    // Increment view count
-    if (functions) {
-      try {
-        const incrementViewsFn = httpsCallable(functions, 'incrementViews');
-        await incrementViewsFn({ propertyId });
-      } catch (err) {
-        console.warn('Could not increment views:', err);
-      }
-    }
   } catch (err) {
     console.error('Error loading property:', err);
     listingLoading.style.display = 'none';
     listingNotFound.style.display = 'block';
+    return;
+  }
+
+  // Increment view count (separate try-catch so it doesn't break the page)
+  if (functions) {
+    try {
+      const incrementViewsFn = httpsCallable(functions, 'incrementViews');
+      await incrementViewsFn({ propertyId });
+    } catch (err) {
+      console.warn('Could not increment views:', err);
+    }
   }
 }
 
