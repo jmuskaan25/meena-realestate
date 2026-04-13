@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Send Requirement - Meena Estate Agency</title>
+  <link rel="stylesheet" href="styles.css?v=2">
+  <link rel="icon" type="image/png" href="logo.png">
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <header class="header">
+    <div class="header-content">
+      <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <span></span><span></span><span></span>
+      </button>
+      <a href="index.html" class="header-brand">
+        <img src="logo.png" alt="Meena Estate Agency" class="header-logo-img">
+      </a>
+      <nav class="header-nav">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="post.html" class="nav-link">Post Property</a>
+        <a href="my-listings.html" class="nav-link">My Listings</a>
+        <a href="requirement.html" class="nav-link active">Send Requirement</a>
+        <a href="admin.html" class="nav-link" id="adminLink" style="display:none;">Admin</a>
+      </nav>
+      <div class="header-actions">
+        <a href="post.html" class="btn-post-property">Post Property <span class="free-badge">FREE</span></a>
+      </div>
+    </div>
+  </header>
+
+  <div class="mobile-nav" id="mobileNav" style="display:none;">
+    <a href="index.html" class="nav-link">Home</a>
+    <a href="post.html" class="nav-link">Post Property</a>
+    <a href="my-listings.html" class="nav-link">My Listings</a>
+    <a href="requirement.html" class="nav-link active">Send Requirement</a>
+    <a href="admin.html" class="nav-link" id="adminLinkMobile" style="display:none;">Admin</a>
+  </div>
+
+  <div class="container">
+    <!-- Hero / Header -->
+    <div class="requirement-hero">
+      <h2>Tell Us What You're Looking For</h2>
+      <p>Submit your requirements and our team will find the best properties for you.</p>
+    </div>
+
+    <!-- Requirement Form -->
+    <div id="requirementFormSection" class="form-card requirement-form">
+      <form id="requirementForm">
+        <!-- Your Details -->
+        <div class="form-section">
+          <h3>Your Details</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="reqName">Your Name *</label>
+              <input type="text" id="reqName" placeholder="Full name" required>
+            </div>
+            <div class="form-group">
+              <label for="reqPhone">Phone Number *</label>
+              <input type="tel" id="reqPhone" placeholder="e.g. 9876543210" required pattern="[0-9]{10}">
+              <span class="form-hint">10-digit mobile number</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="reqEmail">Email</label>
+            <input type="email" id="reqEmail" placeholder="your@email.com (optional)">
+          </div>
+        </div>
+
+        <!-- Property Preferences -->
+        <div class="form-section">
+          <h3>Property Preferences</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="reqPropertyType">Property Type</label>
+              <select id="reqPropertyType">
+                <option value="">Any Type</option>
+                <optgroup label="RESIDENTIAL">
+                  <option value="Flat/Apartment">Flat/Apartment</option>
+                  <option value="Residential House">Residential House</option>
+                  <option value="Villa">Villa</option>
+                  <option value="Builder Floor Apartment">Builder Floor Apartment</option>
+                  <option value="Penthouse">Penthouse</option>
+                  <option value="Studio Apartment">Studio Apartment</option>
+                </optgroup>
+                <optgroup label="COMMERCIAL">
+                  <option value="Commercial Office Space">Commercial Office Space</option>
+                  <option value="Office in IT Park/SEZ">Office in IT Park/SEZ</option>
+                  <option value="Commercial Shop">Commercial Shop</option>
+                  <option value="Commercial Showroom">Commercial Showroom</option>
+                  <option value="Warehouse/Godown">Warehouse/Godown</option>
+                </optgroup>
+                <optgroup label="PLOT / LAND">
+                  <option value="Residential Land/Plot">Residential Land/Plot</option>
+                  <option value="Commercial Land">Commercial Land</option>
+                  <option value="Industrial Land">Industrial Land</option>
+                  <option value="Agricultural Land">Agricultural Land</option>
+                  <option value="Farm House">Farm House</option>
+                </optgroup>
+                <optgroup label="PG / HOSTEL">
+                  <option value="PG">PG</option>
+                  <option value="Hostel">Hostel</option>
+                </optgroup>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="reqLookingTo">Looking to *</label>
+              <select id="reqLookingTo" required>
+                <option value="">Select</option>
+                <option value="Buy">Buy</option>
+                <option value="Rent">Rent</option>
+                <option value="Any">Any</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="reqCity">Preferred City *</label>
+              <input type="text" id="reqCity" placeholder="e.g. Mumbai" required>
+            </div>
+            <div class="form-group">
+              <label for="reqLocality">Preferred Locality</label>
+              <input type="text" id="reqLocality" placeholder="e.g. Andheri West (optional)">
+            </div>
+          </div>
+        </div>
+
+        <!-- Budget -->
+        <div class="form-section">
+          <h3>Budget Range</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="reqMinBudget">Min Budget</label>
+              <input type="number" id="reqMinBudget" placeholder="e.g. 5000000" min="0">
+            </div>
+            <div class="form-group">
+              <label for="reqMaxBudget">Max Budget</label>
+              <input type="number" id="reqMaxBudget" placeholder="e.g. 10000000" min="0">
+            </div>
+          </div>
+        </div>
+
+        <!-- Bedrooms (only for residential) -->
+        <div class="form-section" id="bedroomsSection" style="display:none;">
+          <h3>Bedrooms</h3>
+          <div class="form-group">
+            <label for="reqBedrooms">Bedrooms</label>
+            <select id="reqBedrooms">
+              <option value="">Any</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5+">5+</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Additional Requirements -->
+        <div class="form-section">
+          <h3>Additional Details</h3>
+          <div class="form-group">
+            <label for="reqAdditional">Additional Requirements</label>
+            <textarea id="reqAdditional" rows="4" placeholder="Any specific requirements like floor preference, amenities, possession timeline..."></textarea>
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="form-actions">
+          <button type="submit" class="btn-primary btn-submit" id="submitBtn">
+            Send Requirement
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- WhatsApp Note -->
+    <div class="whatsapp-note">
+      <div class="whatsapp-note-inner">
+        <span class="whatsapp-note-text">Prefer WhatsApp? Send your requirement directly</span>
+        <a href="https://wa.me/919967788889?text=Hi, I'm looking for a property. Please help me find one." target="_blank" class="btn-whatsapp-small">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp
+        </a>
+      </div>
+    </div>
+
+    <!-- Success State -->
+    <div id="successSection" style="display:none;" class="success-section">
+      <div class="success-icon">&#10003;</div>
+      <h2>Requirement Submitted Successfully!</h2>
+      <p>Our team will contact you shortly with matching properties.</p>
+      <div class="success-actions">
+        <button class="btn-outline" id="sendAnotherBtn">Send Another</button>
+        <a id="whatsappSuccessBtn" href="#" target="_blank" class="btn-whatsapp-small">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp Us
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand"><span>🏠</span> Meena Estate Agency</div>
+      <div class="footer-info">
+        <p>Standard brokerage of 1% applies on successful property transactions. No brokerage on under-construction properties.</p>
+        <p class="footer-copy">&copy; 2026 Meena Estate Agency. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bottom Nav (Mobile) -->
+  <nav class="bottom-nav">
+    <a href="index.html" class="bottom-nav-item">
+      <span class="bottom-nav-icon">🏠</span>
+      Home
+    </a>
+    <a href="post.html" class="bottom-nav-item">
+      <span class="bottom-nav-icon">➕</span>
+      Post
+    </a>
+    <a href="my-listings.html" class="bottom-nav-item">
+      <span class="bottom-nav-icon">📋</span>
+      My Listings
+    </a>
+  </nav>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="config.js?v=2"></script>
+  <script type="module" src="requirement.js?v=1"></script>
+
+</body>
+</html>
