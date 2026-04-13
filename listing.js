@@ -288,13 +288,19 @@ function renderProperty() {
     document.getElementById('soldBanner').style.display = 'flex';
   }
 
-  // Contact phone
-  const contactPhone = p.contactPhone || p.postedByPhone || '';
-  if (contactPhone) {
-    const phoneDigits = contactPhone.replace(/\D/g, '');
-    document.getElementById('contactPhoneNumber').textContent = contactPhone;
-    document.getElementById('contactPhoneLink').href = `tel:+91${phoneDigits}`;
-    document.getElementById('contactWhatsAppLink').href = `https://wa.me/91${phoneDigits}?text=Hi, I'm interested in your property: ${encodeURIComponent(p.title || '')}`;
+  // Enquiry popup
+  const enquiryTitle = document.getElementById('enquiryPropertyTitle');
+  if (enquiryTitle) enquiryTitle.textContent = p.title || '';
+  const enquiryWA = document.getElementById('enquiryWhatsApp');
+  if (enquiryWA) enquiryWA.href = `https://wa.me/919967788889?text=${encodeURIComponent(`Hi, I'm interested in the property: ${p.title || ''}. Please share more details.`)}`;
+
+  const enquireBtn = document.getElementById('enquireNowBtn');
+  const enquiryPopup = document.getElementById('enquiryPopup');
+  const enquiryClose = document.getElementById('enquiryPopupClose');
+  if (enquireBtn && enquiryPopup) {
+    enquireBtn.addEventListener('click', () => { enquiryPopup.style.display = 'flex'; });
+    enquiryClose.addEventListener('click', () => { enquiryPopup.style.display = 'none'; });
+    enquiryPopup.addEventListener('click', (e) => { if (e.target === enquiryPopup) enquiryPopup.style.display = 'none'; });
   }
   const sellerPhoto = document.getElementById('sellerPhoto');
   if (p.postedByPhotoURL) {
